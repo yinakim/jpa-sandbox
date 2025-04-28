@@ -1,26 +1,44 @@
 package com.kcd.pos.product.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.kcd.pos.common.dto.BaseDto;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @Schema(description = "카테고리 응답 DTO")
-public class CategoryRes {
+@JsonPropertyOrder({
+        "categoryId"
+        ,"categoryNm"
+        ,"storeId"
+        ,"createdBy"
+        ,"createdAt"
+        ,"createdAtStr"
+        ,"modifiedBy"
+        ,"modifiedAt"
+        ,"modifiedAtStr"
+})
+public class CategoryRes extends BaseDto {
 
-
+    @Schema(name = "카테고리ID")
     private Long categoryId;
+
+    @Schema(name = "카테고리명")
     private String categoryNm;
 
-    private String createdBy;
+    @Schema(name = "매장ID", example = "a7f8b9c2-3d5a-4ef7-9c12-8fa2b5ef3a72")
+    private String storeId;
 
     @Builder
-    public CategoryRes(Long categoryId, String categoryNm) {
+    public CategoryRes(
+            String createdBy, LocalDateTime createdAt, String modifiedBy, LocalDateTime modifiedAt,
+            Long categoryId, String categoryNm, String storeId) {
+        super(createdBy, createdAt, modifiedBy, modifiedAt);
         this.categoryId = categoryId;
         this.categoryNm = categoryNm;
+        this.storeId = storeId;
     }
 }
