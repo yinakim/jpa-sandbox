@@ -4,7 +4,9 @@ package com.kcd.pos.common.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -15,6 +17,7 @@ import java.time.LocalDateTime;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor
 @Getter
 public abstract class BaseEntity {
     @CreatedBy
@@ -32,4 +35,11 @@ public abstract class BaseEntity {
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime modifiedAt;
+
+    protected BaseEntity(String createdBy, LocalDateTime createdAt, String modifiedBy, LocalDateTime modifiedAt) {
+        this.createdBy = createdBy;
+        this.createdAt = createdAt;
+        this.modifiedBy = modifiedBy;
+        this.modifiedAt = modifiedAt;
+    }
 }
