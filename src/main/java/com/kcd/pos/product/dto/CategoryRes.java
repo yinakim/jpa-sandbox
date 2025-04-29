@@ -16,9 +16,9 @@ import java.time.LocalDateTime;
         ,"storeId"
         ,"createdBy"
         ,"createdAt"
-        ,"createdAtStr"
         ,"modifiedBy"
         ,"modifiedAt"
+        ,"createdAtStr"
         ,"modifiedAtStr"
 })
 public class CategoryRes extends BaseDto {
