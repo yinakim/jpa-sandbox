@@ -29,6 +29,13 @@ public class Product extends BaseEntity {
     @Column(name = "price", nullable = false)
     private int price;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "bg_color", length = 20)
+    private BgColor bgColor;
+
+    @Column(name = "tax_yn", nullable = false, length = 1)
+    private String taxYn; // 'Y': 과세, 'N': 비과세
+
     @Column(name = "store_id", nullable = false, length = 36) // UUID 사용 가정
     private String storeId; // 매장ID - 매장정보 관리 도메인과 연결 시 사용
 
@@ -40,10 +47,12 @@ public class Product extends BaseEntity {
     private String deleteYn = "N";
 
     @Builder
-    public Product(String productCd, String productNm, int price, String storeId, Category category) {
+    public Product(String productCd, String productNm, int price, BgColor bgColor, String taxYn, String storeId, Category category) {
         this.productCd = productCd;
         this.productNm = productNm;
         this.price = price;
+        this.bgColor = bgColor;
+        this.taxYn = taxYn;
         this.storeId = storeId;
         this.category = category;
     }
@@ -61,7 +70,17 @@ public class Product extends BaseEntity {
         this.category = newCategory;
     }
 
-    public void safeDeleteCategory(){
+    public void changeBgColor(BgColor bgColor){
+        this.bgColor = bgColor;
+    }
+
+    public void changeTaxYn(String taxYn){
+        this.taxYn = taxYn;
+    }
+
+    public void safeDeleteProduct(){
         this.deleteYn = "Y";
     }
+
+    // TODO update 용 메서드 하나 만들어서 change 할지? 아님 필드별 change메서드를 사용?
 }

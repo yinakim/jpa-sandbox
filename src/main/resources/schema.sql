@@ -19,6 +19,9 @@ CREATE TABLE IF NOT EXISTS product (
     product_nm VARCHAR(100) NOT NULL,
     price INT NOT NULL,
     store_id VARCHAR(36) NOT NULL,
+    bg_color VARCHAR(20) NOT NULL,
+    tax_yn VARCHAR(1) NOT NULL,
+
     category_id BIGINT NOT NULL,
     delete_yn VARCHAR(1) NOT NULL DEFAULT 'N',
 
