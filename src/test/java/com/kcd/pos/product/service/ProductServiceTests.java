@@ -1,5 +1,6 @@
 package com.kcd.pos.product.service;
 
+import com.kcd.pos.product.domain.BgColor;
 import com.kcd.pos.product.domain.Category;
 import com.kcd.pos.product.domain.Product;
 import com.kcd.pos.product.domain.ProductCdSeq;
@@ -66,7 +67,15 @@ public class ProductServiceTests {
         Long categoryId = testCategory1.getCategoryId();
 
         // given
-        ProductRegisterReq request = new ProductRegisterReq("아메리카노", 3000, SAMPLE_STORE_ID, categoryId);
+        ProductRegisterReq request
+                = ProductRegisterReq.builder()
+                .productNm("아메리카노")
+                .price(3000)
+                .bgColor(BgColor.BLUE)
+                .taxYn("Y")
+                .storeId(SAMPLE_STORE_ID)
+                .categoryId(categoryId)
+                .build();
 
         when(productCdSeqRepository.findMaxSequenceNumberWithLock()).thenReturn(5L); // 현재 최대 시퀀스는 5
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(testCategory1));
