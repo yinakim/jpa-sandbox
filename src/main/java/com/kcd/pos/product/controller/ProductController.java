@@ -1,8 +1,6 @@
 package com.kcd.pos.product.controller;
 
-import com.kcd.pos.product.dto.ProductRegisterReq;
-import com.kcd.pos.product.dto.ProductRegisterRes;
-import com.kcd.pos.product.dto.ProductRes;
+import com.kcd.pos.product.dto.*;
 import com.kcd.pos.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,8 +33,15 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(service.getProductByProductNm(productNm));
     }
 
+    @PutMapping("/{productCd}")
+    public ResponseEntity<Void> updateProduct(@PathVariable String productCd, @RequestBody ProductUpdateReq request){
+        service.updateProduct(productCd, request);
+        return ResponseEntity.noContent().build();
+    }
 
-
-
-
+    @DeleteMapping("/{productCd}")
+    public ResponseEntity<Void> safeDeleteProduct(@PathVariable String productCd) {
+        service.safeDeleteProduct(productCd);
+        return ResponseEntity.noContent().build();
+    }
 }
