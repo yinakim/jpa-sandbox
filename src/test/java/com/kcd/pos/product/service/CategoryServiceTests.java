@@ -1,18 +1,20 @@
-package com.kcd.pos.product;
+package com.kcd.pos.product.service;
 
+import com.kcd.pos.common.constants.TestConstants;
 import com.kcd.pos.product.domain.Category;
 import com.kcd.pos.product.dto.CategoryRegisterReq;
 import com.kcd.pos.product.dto.CategoryRegisterRes;
+import com.kcd.pos.product.dto.CategoryReq;
 import com.kcd.pos.product.dto.CategoryRes;
 import com.kcd.pos.product.repository.CategoryRepository;
-import com.kcd.pos.product.service.CategoryService;
+import com.kcd.pos.product.repository.ProductRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -20,18 +22,31 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class CategoryServiceTests {
     @Mock
     private CategoryRepository categoryRepository;
 
+    @Mock
+    private ProductRepository productRepository;
+
     @InjectMocks
     private CategoryService categoryService;
 
-    public CategoryServiceTests() {
+    private final Long SAMPLE_CATEGORY_ID = 10L;
+    private Category sampleCategory;
+
+    @BeforeEach
+    void setUp() {
         MockitoAnnotations.openMocks(this);
+        sampleCategory = Category.builder()
+                .categoryId(SAMPLE_CATEGORY_ID)
+                .categoryNm("수정/삭제 테스트용 카테고리")
+                .storeId(TestConstants.SAMPLE_STORE_ID)
+                .build();
     }
+
 
     @Test
     @DisplayName("신규 카테고리를 등록할 수 있다.")
@@ -121,5 +136,23 @@ public class CategoryServiceTests {
         // then
         assertThat(result).isEmpty(); // 결과 리스트가 비어있음
     }
+
+    @Test
+    @DisplayName("카테고리명을 수정할 수 있다.")
+    void updateCategory_success() {
+        // given
+        when(categoryRepository.findById(SAMPLE_CATEGORY_ID)).thenReturn(Optional.of(sampleCategory));
+
+        CategoryReq updateReq = CategoryReq.builder()
+                .categoryNm("수정된카테고리")
+                .build();
+
+        // when
+        categoryService.updateCategory(SAMPLE_CATEGORY_ID, updateReq);
+
+        // then
+        assertThat(sampleCategory.getCategoryNm()).isEqualTo("수정된카테고리");
+    }
+
 
 }

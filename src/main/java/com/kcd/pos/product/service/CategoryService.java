@@ -3,10 +3,13 @@ package com.kcd.pos.product.service;
 import com.kcd.pos.product.domain.Category;
 import com.kcd.pos.product.dto.CategoryRegisterReq;
 import com.kcd.pos.product.dto.CategoryRegisterRes;
+import com.kcd.pos.product.dto.CategoryReq;
 import com.kcd.pos.product.dto.CategoryRes;
 import com.kcd.pos.product.repository.CategoryRepository;
+import com.kcd.pos.product.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -18,6 +21,9 @@ import java.util.stream.Collectors;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
+
+    private final AuditorAware<String> auditor;
 
     /**
      * CategoryRes 엔티티 mapper
@@ -49,6 +55,10 @@ public class CategoryService {
                 .categoryId(result.getCategoryId())
                 .categoryNm(result.getCategoryNm())
                 .storeId(result.getStoreId())
+                .createdAt(result.getCreatedAt())
+                .createdBy(result.getCreatedBy())
+                .modifiedAt(result.getModifiedAt())
+                .modifiedBy(result.getModifiedBy())
                 .build();
     }
 
@@ -73,6 +83,29 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 카테고리명 수정
+     */
+    @Transactional
+    public void updateCategory(Long categoryId, CategoryReq request) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + categoryId));
+        category.changeCategoryNm(request.getCategoryNm()); // dirtyChecking update
+    }
 
+    /**
+     * 카테고리 삭제
+     * 1. 해당 카테고리에 등록된 상품 존재여부 확인 - 존재하는 경우 삭제불가
+     * 2. 존재하지 않는 경우 deleteYn = "Y"
+     */
+    @Transactional
+    public void safeDeleteCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + categoryId));
 
+        if (productRepository.existsByCategory_CategoryId(categoryId)) {
+            throw new IllegalStateException("해당 카테고리에 등록된 상품이 존재하여 삭제할 수 없습니다.");
+        }
+        category.safeDeleteCategory();
+    }
 }

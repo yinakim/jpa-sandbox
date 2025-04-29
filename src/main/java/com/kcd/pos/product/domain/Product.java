@@ -34,6 +34,9 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category; // 카테고리:상품 = 1:N
 
+    @Column(name = "delete_yn", nullable = false)
+    private String deleteYn = "N";
+
     @Builder
     public Product(String productCd, String productNm, int price, String storeId, Category category) {
         this.productCd = productCd;
@@ -54,5 +57,9 @@ public class Product extends BaseEntity {
 
     public void changeCategory(Category newCategory){
         this.category = newCategory;
+    }
+
+    public void safeDeleteCategory(){
+        this.deleteYn = "Y";
     }
 }

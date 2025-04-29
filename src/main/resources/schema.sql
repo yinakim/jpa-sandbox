@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS category (
     category_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     category_nm VARCHAR(255),
     store_id VARCHAR(36) NOT NULL,
+    delete_yn VARCHAR(1) NOT NULL DEFAULT 'N',
 
     created_at TIMESTAMP,
     created_by VARCHAR(255),
@@ -19,6 +20,7 @@ CREATE TABLE IF NOT EXISTS product (
     price INT NOT NULL,
     store_id VARCHAR(36) NOT NULL,
     category_id BIGINT NOT NULL,
+    delete_yn VARCHAR(1) NOT NULL DEFAULT 'N',
 
     created_at TIMESTAMP,
     created_by VARCHAR(255),
@@ -48,7 +50,7 @@ CREATE TABLE IF NOT EXISTS option_group (
     depth INT NOT NULL,
     parent_id BIGINT,
     product_pk_id BIGINT NOT NULL,
-
+    delete_yn VARCHAR(1) NOT NULL DEFAULT 'N',
     created_at TIMESTAMP,
     created_by VARCHAR(255),
     modified_at TIMESTAMP,
@@ -65,7 +67,7 @@ CREATE TABLE IF NOT EXISTS option (
     option_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     option_nm VARCHAR(50) NOT NULL,
     extra_price INT NOT NULL,
-
+    delete_yn VARCHAR(1) NOT NULL DEFAULT 'N',
     created_at TIMESTAMP,
     created_by VARCHAR(255),
     modified_at TIMESTAMP,
@@ -79,7 +81,7 @@ CREATE TABLE IF NOT EXISTS category_option_group (
     category_pk_id BIGINT NOT NULL,
     option_group_pk_id BIGINT NOT NULL,
     mandatory BOOLEAN DEFAULT TRUE NOT NULL,
-
+    delete_yn VARCHAR(1) NOT NULL DEFAULT 'N',
     created_at TIMESTAMP,
     created_by VARCHAR(255),
     modified_at TIMESTAMP,
