@@ -1,10 +1,11 @@
-package com.kcd.pos.common.exception;
+package com.kcd.pos.common.constants;
 
 import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
 
-    SEQUENCE_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "E0001", "시퀀스 저장 중 오류가 발생했습니다.")
+    SEQUENCE_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "E0001", "시퀀스 저장 중 오류가 발생했습니다."),
+    HISTORY_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "E0002", "데이터 삭제 중 오류가 발생했습니다.")
     ;
 
     private final HttpStatus status;
