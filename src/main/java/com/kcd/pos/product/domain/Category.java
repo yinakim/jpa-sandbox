@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "category")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-//@Where(clause = "delete_yn = 'N'")
+@Where(clause = "delete_yn = 'N'") // 조회시 유효한 데이터만 조회되도록 전역설정, 조회에만 적용됨
 @Getter
 public class Category extends BaseEntity {
     @Id

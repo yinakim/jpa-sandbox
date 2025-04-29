@@ -6,10 +6,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "product")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = "delete_yn = 'N'")
 @Getter
 public class Product extends BaseEntity {
 
@@ -34,7 +36,7 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category; // 카테고리:상품 = 1:N
 
-    @Column(name = "delete_yn", nullable = false)
+    @Column(name = "delete_yn", nullable = false, length = 1)
     private String deleteYn = "N";
 
     @Builder

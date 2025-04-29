@@ -1,5 +1,6 @@
 package com.kcd.pos.common.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,14 @@ import java.util.Objects;
 @Getter
 @Schema(description = "생성/수정 meta 데이터 DTO")
 @NoArgsConstructor
+@JsonPropertyOrder({
+        "createdBy"
+        ,"createdAt"
+        ,"createdAtStr"
+        ,"modifiedBy"
+        ,"modifiedAt"
+        ,"modifiedAtStr"
+})
 public abstract class BaseDto {
 
     @Schema(description = "생성자 ID", example = "admin")
