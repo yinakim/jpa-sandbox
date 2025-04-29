@@ -40,6 +40,13 @@ public abstract class BaseDto {
         this.modifiedAtStr = format(modifiedAt);
     }
 
+    // 수정용
+    protected BaseDto(LocalDateTime modifiedAt, String modifiedBy) {
+        this.modifiedBy = modifiedBy;
+        this.modifiedAt = modifiedAt;
+        this.modifiedAtStr = format(modifiedAt);
+    }
+
     private String format(LocalDateTime dateTime) {
         if (Objects.isNull(dateTime)) return "";
         return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
