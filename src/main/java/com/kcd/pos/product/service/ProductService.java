@@ -272,13 +272,65 @@ public class ProductService {
 
     /**
      * 상품 삭제
+     * 옵션그룹, 옵션, 매핑 - safeDelete
      */
     @Transactional
     public void safeDeleteProduct(String productCd) {
         Product product = productRepository.findByProductCd(productCd)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. ID: " + productCd));
-
-        // TODO. 상품에 종속된 옵션 함께 삭제 ? vs 상품에 종속된 옵션은 놔두고 상품만 삭제?
+        //setDeleteYnProductChildren(product.getProductId(), DELETE_Y);
+        safeDeleteProductChildren(product.getProductId());
         product.safeDeleteProduct();
     }
+
+    /**
+     * 상품 삭제 시, 연관데이터 삭제처리
+     * 상품에 종속/매핑된 값의 DELETE_YN = 'Y'
+     */
+    private void safeDeleteProductChildren(Long productId) {
+        List<ProductOptionGroup> targetDatas = productOptionGroupRepository
+                .findByProduct_ProductIdAndDeleteYn(productId, DELETE_N); // N -> Y
+        for (ProductOptionGroup pog : targetDatas) {
+            OptionGroup og = pog.getOptionGroup();
+            for (Option opt : og.getOptions()) {
+                opt.safeDelete();
+            }
+            og.safeDelete();
+            pog.safeDelete();
+        }
+    }
+
+    /**
+     * 상품 삭제/복구
+     * 상품에 종속, 매핑된 값의 DELETE_YN 변경 담당
+     */
+    private void setDeleteYnProductChildren(Long productId, String deleteYn) {
+        // 타겟 데이터 조회를 위한 조건생성
+        String targetCondition = deleteYn.equals(DELETE_Y) ? DELETE_N : DELETE_Y;
+
+        // 매핑 테이블에서 productId로 조회, 파라미터로 받은 deleteYn 값과 반대값인 데이터를 조회해온다 (파라미터 값을 적용해야하므로)
+        List<ProductOptionGroup> targetDatas = productOptionGroupRepository
+                .findByProduct_ProductIdAndDeleteYn(productId, targetCondition);
+
+        if(deleteYn.equals(DELETE_Y)) {
+            for (ProductOptionGroup pog : targetDatas) {
+                OptionGroup og = pog.getOptionGroup();
+                for (Option opt : og.getOptions()) {
+                    opt.safeDelete();
+                }
+                og.safeDelete();
+                pog.safeDelete();
+            }
+        } else {
+            for (ProductOptionGroup pog : targetDatas) {
+                OptionGroup og = pog.getOptionGroup();
+                for (Option opt : og.getOptions()) {
+                    opt.recovery();
+                }
+                og.recovery();
+                pog.recovery();
+            }
+        }
+    }
+
 }
