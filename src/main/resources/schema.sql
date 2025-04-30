@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS option_group (
     option_grp_nm VARCHAR(50) NOT NULL,
     depth INT NOT NULL,
     parent_id BIGINT,
-    product_pk_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
     delete_yn VARCHAR(1) NOT NULL DEFAULT 'N',
     created_at TIMESTAMP,
     created_by VARCHAR(255),
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS option_group (
     modified_by VARCHAR(255),
 
     CONSTRAINT fk_optiongroup_parent FOREIGN KEY (parent_id) REFERENCES option_group(option_grp_id),
-    CONSTRAINT fk_optiongroup_product FOREIGN KEY (product_pk_id) REFERENCES product(id)
+    CONSTRAINT fk_optiongroup_product FOREIGN KEY (product_id) REFERENCES product(id)
 );
 COMMENT ON TABLE option_group IS '옵션그룹 테이블';
 
@@ -78,19 +78,18 @@ CREATE TABLE IF NOT EXISTS option (
 );
 COMMENT ON TABLE option IS '옵션 테이블';
 
-/* 카테고리 별 옵션  */
-CREATE TABLE IF NOT EXISTS category_option_group (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    category_pk_id BIGINT NOT NULL,
-    option_group_pk_id BIGINT NOT NULL,
-    mandatory BOOLEAN DEFAULT TRUE NOT NULL,
-    delete_yn VARCHAR(1) NOT NULL DEFAULT 'N',
-    created_at TIMESTAMP,
-    created_by VARCHAR(255),
-    modified_at TIMESTAMP,
-    modified_by VARCHAR(255),
-
-    CONSTRAINT fk_cog_category FOREIGN KEY (category_pk_id) REFERENCES category(category_id),
-    CONSTRAINT fk_cog_optiongroup FOREIGN KEY (option_group_pk_id) REFERENCES option_group(option_grp_id)
+/* 상품-옵션 매핑 */
+CREATE TABLE IF NOT EXISTS product_option_group (
+    pog_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    product_id BIGINT NOT NULL,
+    option_group_id BIGINT NOT NULL,
+    active_yn CHAR(1) NOT NULL DEFAULT 'N',
+    delete_yn CHAR(1) NOT NULL DEFAULT 'N',
+    created_by VARCHAR(255) DEFAULT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    modified_by VARCHAR(255) DEFAULT NULL,
+    modified_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_product_option_group_product FOREIGN KEY (product_id) REFERENCES product(product_id),
+    CONSTRAINT fk_product_option_group_option_group FOREIGN KEY (option_group_id) REFERENCES option_group(option_grp_id)
 );
-COMMENT ON TABLE category_option_group IS '카테고리 별 지정옵션 매핑 테이블';
+COMMENT ON TABLE product_option_group IS '상품-옵션 매핑 테이블';
