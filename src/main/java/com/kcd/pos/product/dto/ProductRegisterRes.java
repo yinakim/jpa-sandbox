@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -54,11 +55,13 @@ public class ProductRegisterRes extends BaseDto {
     @Schema(name = "상품이 속한 카테고리명")
     private String categoryNm;
 
+    @Schema(name = "상품에 등록된 옵션그룹")
+    private List<OptionGroupRegisterRes> optionGroups;
 
     @Builder
     public ProductRegisterRes(
             String createdBy, LocalDateTime createdAt, String modifiedBy, LocalDateTime modifiedAt,
-            String productCd, String productNm, int price, BgColor bgColor, String taxYn, String storeId, Long categoryId, String categoryNm) {
+            String productCd, String productNm, int price, BgColor bgColor, String taxYn, String storeId, Long categoryId, String categoryNm, List<OptionGroupRegisterRes> optionGroups) {
         super(createdBy, createdAt, modifiedBy, modifiedAt);
         this.productCd = productCd;
         this.productNm = productNm;
@@ -68,5 +71,6 @@ public class ProductRegisterRes extends BaseDto {
         this.storeId = storeId;
         this.categoryId = categoryId;
         this.categoryNm = categoryNm;
+        this.optionGroups = optionGroups;
     }
 }

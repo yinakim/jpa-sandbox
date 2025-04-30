@@ -3,21 +3,18 @@ package com.kcd.pos.product.service;
 import com.kcd.pos.common.constants.ErrorCode;
 import com.kcd.pos.common.exception.SequenceSaveException;
 import com.kcd.pos.common.util.JsonUtil;
-import com.kcd.pos.product.domain.BgColor;
-import com.kcd.pos.product.domain.Category;
-import com.kcd.pos.product.domain.Product;
-import com.kcd.pos.product.domain.ProductCdSeq;
+import com.kcd.pos.product.domain.*;
 import com.kcd.pos.product.dto.*;
-import com.kcd.pos.product.repository.CategoryRepository;
-import com.kcd.pos.product.repository.ProductCdSeqRepository;
-import com.kcd.pos.product.repository.ProductRepository;
+import com.kcd.pos.product.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -28,9 +25,21 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ProductService {
 
+    // TODO. 따로추출
+    public static final String ACTIVE_Y = "Y";
+    public static final String DELETE_Y = "Y";
+    public static final String REQUIRE_Y = "Y";
+
+    public static final String ACTIVE_N = "N";
+    public static final String DELETE_N = "N";
+    public static final String REQUIRE_N = "N";
+
     private final ProductRepository productRepository;
     private final ProductCdSeqRepository productCdSeqRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductOptionGroupRepository productOptionGroupRepository;
+    private final OptionGroupRepository optionGroupRepository;
+    private final OptionRepsitory optionRepsitory;
 
     /**
      * ProductRes - Product 매핑
@@ -66,9 +75,10 @@ public class ProductService {
     /**
      * 신규상품 등록
      * 1. 상품 고유ID 생성(DB SEQ 사용)
-     * 2. 상품 카테고리 유효성 검사
-     * 3. 상품 저장 + DB SEQ 저장
-     * 4. 정상등록 결과 반환
+     * 2. 카테고리 조회 - 유효성 검사
+     * 3. 상품 등록 + productCd SEQ 저장 필수
+     * 4. 옵션그룹(+옵션) 등록 / 상품-옵션그룹 매핑 저장 - saveOptionGrpAndMapToProduct 호출
+     * 6. 정상등록 결과 반환
      */
     @Transactional
     public ProductRegisterRes registerProduct(ProductRegisterReq registerReq) {
@@ -76,15 +86,14 @@ public class ProductService {
         Long maxSeq = productCdSeqRepository.findMaxSequenceNumberWithLock();
         long nextSeq = Objects.nonNull(maxSeq) ? maxSeq + 1 : 1L;
 
-        // 2. productCd 생성 (ex: "P00001")
+        // 1-1. productCd 생성 (ex: "P00001")
         String productCd = String.format("P%05d", nextSeq);
-        System.out.println(" 신규 productCd ................. : " + productCd);
 
-        // 3. 카테고리 조회 - 예외 발생 시 400응답(ExceptionHandler)
+        // 2. 카테고리 조회 - 예외 발생 시 400응답(ExceptionHandler)
         Category category = categoryRepository.findById(registerReq.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("[상품등록 실패] 유효하지 않은 카테고리 입니다. 카테고리ID : " + String.valueOf(registerReq.getCategoryId())));
 
-        // 4. 상품 등록
+        // 3. 상품 등록
         Product newProduct = Product.builder()
                 .productCd(productCd) // ex.P00001
                 .productNm(registerReq.getProductNm())
@@ -96,7 +105,7 @@ public class ProductService {
                 .build();
         Product savedProduct = productRepository.save(newProduct);
 
-        // 5. productCd 시퀀스 저장 필수
+        // 3-1. productCd 시퀀스 저장 필수
         try {
             productCdSeqRepository.save(new ProductCdSeq(nextSeq));
         } catch (Exception e){
@@ -105,6 +114,11 @@ public class ProductService {
             log.error("[상품등록 실패] - PRODUCT_ID_SEQ:{} / 발생시간:{} ", nextSeq, errorTime, e);
             throw new SequenceSaveException(ErrorCode.SEQUENCE_SAVE_FAILED, JsonUtil.toJson(savedProduct));
         }
+
+        // 4. [옵션그룹(+ 옵션포함)] 등록 및 [상품-옵션그룹] 매핑저장
+        // TODO. 매핑할 때 엔티티를 넘겨야 해서 한번에 두가지 동작수행(옵션그룹과 옵션 생성, 매핑) 분리하고싶음
+        List<OptionGroupRegisterRes> optionGroupRegisterRes = saveOptionGrpAndMapToProduct(registerReq.getOptionGroups(), savedProduct);
+
 
         // 6. 정상등록 결과반환
         return ProductRegisterRes.builder()
@@ -120,7 +134,70 @@ public class ProductService {
                 .createdBy(savedProduct.getCreatedBy())
                 .modifiedAt(savedProduct.getModifiedAt())
                 .modifiedBy(savedProduct.getModifiedBy())
+                .optionGroups(optionGroupRegisterRes) // 옵션 등록결과
                 .build();
+    }
+
+    /**
+     * 신규상품 등록 시 옵션그룹, 옵션 생성
+     * 생성된 옵션그룹 목록(옵션목록) 반환 - 주요값만 포함된 DTO사용
+     */
+    private List<OptionGroupRegisterRes> saveOptionGrpAndMapToProduct(
+            List<OptionGroupRegisterReq> requestGroups, Product savedProduct) {
+        List<OptionGroupRegisterRes> results = new ArrayList<>();
+
+        for(OptionGroupRegisterReq reqOptGrp : requestGroups){
+            // 1. 옵션그룹 생성 + 저장
+            OptionGroup optionGroup = OptionGroup.builder()
+                    .optionGrpNm(reqOptGrp.getOptionGrpNm())
+                    .minSelectCnt(reqOptGrp.getMinSelectCnt())
+                    .maxSelectCnt(reqOptGrp.getMaxSelectCnt())
+                    .activeYn(ACTIVE_Y)
+                    .deleteYn(DELETE_N)
+                    .requireYn(REQUIRE_Y)
+                    .build();
+            OptionGroup savedOptionGroup = optionGroupRepository.save(optionGroup); // 응답결과 반환 필요
+
+            // 2. 옵션 생성 + 저장
+            List<OptionRegisterRes> optionResList = new ArrayList<>();
+
+            for (OptionRegisterReq optionReq : reqOptGrp.getOptions()) {
+                Option option = Option.builder()
+                        .optionNm(optionReq.getOptionNm())
+                        .extraPrice(optionReq.getExtraPrice())
+                        .optionGroup(savedOptionGroup)
+                        .activeYn(ACTIVE_Y)
+                        .deleteYn(DELETE_N)
+                        .build();
+
+                Option savedOption = optionRepsitory.save(option);
+
+                optionResList.add(OptionRegisterRes.builder()
+                                .optionId(savedOption.getOptionId())
+                                .optionNm(savedOption.getOptionNm())
+                                .extraPrice(savedOption.getExtraPrice())
+                                .build()); // Option 결과 list 세팅
+            } // Option 목록저장, 결과세팅
+
+            // 3. 상품-옵션그룹 매핑
+            ProductOptionGroup pog = ProductOptionGroup.builder()
+                    .activeYn(ACTIVE_Y)
+                    .deleteYn(DELETE_N)
+                    .build();
+            pog.assignToProduct(savedProduct);
+            pog.assignToOptionGroup(savedOptionGroup);
+            productOptionGroupRepository.save(pog);
+
+            // 옵션그룹 결과 (+ 옵션결과 포함) 세팅
+            OptionGroupRegisterRes optGrpResponse = OptionGroupRegisterRes.builder()
+                    .optionGrpId(savedOptionGroup.getOptionGrpId())
+                    .optionGrpNm(savedOptionGroup.getOptionGrpNm())
+                    .options(optionResList) // DTO로 세팅
+                    .build();
+
+            results.add(optGrpResponse);
+        } // OptionGroup 목록저장, 결과세팅
+        return results;
     }
 
     /**

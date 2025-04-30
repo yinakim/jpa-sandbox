@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -36,6 +38,9 @@ public class ProductRegisterReq {
     @Schema(description = "카테고리 ID", example = "1")
     @NotNull(message = "카테고리 ID는 필수입니다.")
     private Long categoryId;
+
+    @Schema(description = "옵션그룹목록")
+    private List<OptionGroupRegisterReq> optionGroups = new ArrayList<>();
 
     @Builder
     public ProductRegisterReq(String productNm, int price, BgColor bgColor, String taxYn, String storeId, Long categoryId) {
