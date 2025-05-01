@@ -1,5 +1,6 @@
 package com.kcd.pos.order.domain;
 
+import com.kcd.pos.common.constants.DataStatus;
 import com.kcd.pos.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -70,5 +71,9 @@ public class OrderItem extends BaseEntity {
     public void addOrderItemOption(OrderItemOption option) {
         this.orderItemOptions.add(option); // list에 하나씩 추가
         option.assignToOrderItem(this); // 자식 -> 부모 할당(연관관계 설정)
+    }
+
+    public void safeDelete() {
+        this.deleteYn = DataStatus.DELETE_Y;
     }
 }

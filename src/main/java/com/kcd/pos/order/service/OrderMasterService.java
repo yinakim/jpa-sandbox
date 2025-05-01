@@ -19,6 +19,7 @@ import com.kcd.pos.product.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderMasterService {
-    private final OrderMasterRepository orderRepository;
+    private final OrderMasterRepository orderMasterRepository;
     private final ProductRepository productRepository;
     private final OptionGroupRepository optionGroupRepository;
     private final ProductOptionGroupRepository productOptionGroupRepository;
@@ -99,7 +100,7 @@ public class OrderMasterService {
             orderMaster.addOrderItem(orderItem);
         } // orderItems
 
-        OrderMaster savedOrder = orderRepository.save(orderMaster);
+        OrderMaster savedOrder = orderMasterRepository.save(orderMaster);
     }
 
 
@@ -108,10 +109,11 @@ public class OrderMasterService {
      */
     public List<OrderRes> getOrders(OrderReq request) {
         // 조건 기반 조회
-        List<OrderMaster> orders = orderRepository.findAllByConditions(
+        List<OrderMaster> orders = orderMasterRepository.findAllByConditions(
                 request.getOrderId(),
                 request.getFromDate(),
                 request.getToDate()
+                //request.getDeleteYn()
         );
 
         List<OrderRes> responseList = new java.util.ArrayList<>();
@@ -180,8 +182,8 @@ public class OrderMasterService {
             throw new IllegalArgumentException("주문상세조회 시, orderId는 필수입니다.");
         }
 
-        OrderMaster order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 주문을 찾을 수 없습니다."));
+        OrderMaster order = orderMasterRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 주문ID 입니다. 주문ID:" + orderId));
 
         return OrderRes.builder()
                 .orderId(order.getOrderId())
@@ -207,6 +209,19 @@ public class OrderMasterService {
                                 .build())
                         .collect(Collectors.toList()))
                 .build();
+    }
+
+    @Transactional
+    public void safeDeleteOrder(Long orderId) {
+        OrderMaster orderMaster = orderMasterRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문건입니다."));
+        
+        // 1. order item safeDelete
+        orderMaster.getOrderItems()
+                .forEach(OrderItem::safeDelete);
+
+        // 2. order safeDelete
+        orderMaster.safeDelete();
     }
 }
 

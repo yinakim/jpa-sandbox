@@ -1,12 +1,11 @@
 package com.kcd.pos.order.domain;
 
+import com.kcd.pos.common.constants.DataStatus;
 import com.kcd.pos.common.constants.DiscountType;
 import com.kcd.pos.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "ORDER_MASTER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = "delete_yn = 'N'")
 @Getter
 public class OrderMaster extends BaseEntity {
 
@@ -56,5 +56,9 @@ public class OrderMaster extends BaseEntity {
         this.discountPrice = discountPrice;
         this.discount = Objects.isNull(discount) ? new Discount() : discount;
         this.deleteYn = deleteYn;
+    }
+
+    public void safeDelete() {
+        this.deleteYn = DataStatus.DELETE_Y;
     }
 }

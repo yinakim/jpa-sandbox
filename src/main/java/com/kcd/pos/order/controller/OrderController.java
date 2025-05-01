@@ -54,6 +54,14 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(orderRes);
     }
 
+    @Operation(summary = "주문 단건 삭제", description = "")
+    @ApiResponse(responseCode = "204", description = "주문 삭제 성공")
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<Void> safeDeleteOrder(@PathVariable Long orderId){
+        service.safeDeleteOrder(orderId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 
 
 }
