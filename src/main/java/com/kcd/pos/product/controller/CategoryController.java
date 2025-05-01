@@ -41,8 +41,8 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Operation(summary = "카테고리 상세조회", description = "카테고리명으로 카테고리 1건을 상세조회합니다.")
-    @ApiResponse(responseCode = "200", description = "카테고리 상세조회 성공")
+    @Operation(summary = "카테고리 목록조회", description = "카테고리명 검색으로 카테고리 목록을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "카테고리 목록조회 성공")
     @GetMapping
     public ResponseEntity<List<CategoryRes>> getCategoryContainCategoryNm(@RequestParam String categoryNm){
         return ResponseEntity.status(HttpStatus.OK).body(service.getCategoryByCategoryNm(categoryNm));

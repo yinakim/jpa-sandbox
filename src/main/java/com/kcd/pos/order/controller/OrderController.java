@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Order", description = "주문관리 API")
+@Tag(name = "OrderController", description = "주문관리 API")
 @RestController
 @RequestMapping("/pos/order/v1/orders")
 @RequiredArgsConstructor
