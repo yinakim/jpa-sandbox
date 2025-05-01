@@ -1,5 +1,6 @@
 package com.kcd.pos.order.controller;
 
+import com.kcd.pos.order.dto.OrderItemQuantiyReq;
 import com.kcd.pos.order.dto.OrderRegisterReq;
 import com.kcd.pos.order.dto.OrderReq;
 import com.kcd.pos.order.dto.OrderRes;
@@ -52,6 +53,14 @@ public class OrderController {
     public ResponseEntity<OrderRes> getOrderDetail(@PathVariable Long orderId){
         OrderRes orderRes = service.getOrderDetail(orderId);
         return ResponseEntity.status(HttpStatus.OK).body(orderRes);
+    }
+
+    @Operation(summary = "주문 항목 수정 - 수량변경", description = "")
+    @ApiResponse(responseCode = "204", description = "주문항목 수정 성공")
+    @PatchMapping("/item/{orderItemId}")
+    public ResponseEntity<Void> updateItemQuantity(@PathVariable Long orderItemId, @RequestBody OrderItemQuantiyReq request){
+        service.updateItemQuantity(orderItemId, request.getItemQuantity());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @Operation(summary = "주문 단건 삭제", description = "")

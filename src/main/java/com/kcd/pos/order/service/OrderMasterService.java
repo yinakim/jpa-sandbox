@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -211,6 +212,9 @@ public class OrderMasterService {
                 .build();
     }
 
+    /**
+     * 주문 삭제 - safeDelete
+     */
     @Transactional
     public void safeDeleteOrder(Long orderId) {
         OrderMaster orderMaster = orderMasterRepository.findById(orderId)
@@ -222,6 +226,17 @@ public class OrderMasterService {
 
         // 2. order safeDelete
         orderMaster.safeDelete();
+    }
+
+    /**
+     * 주문항목 수량변경
+     * @param orderItemId
+     */
+    @Transactional
+    public void updateItemQuantity(Long orderItemId, int newQuantity) {
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+        orderItem.changeItemQuantity(newQuantity);
     }
 }
 

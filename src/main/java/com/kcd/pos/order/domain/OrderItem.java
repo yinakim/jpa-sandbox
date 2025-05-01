@@ -76,4 +76,11 @@ public class OrderItem extends BaseEntity {
     public void safeDelete() {
         this.deleteYn = DataStatus.DELETE_Y;
     }
+
+    public void changeItemQuantity(int newQuantity) {
+        if (newQuantity < 1) {
+            throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
+        }
+        this.itemQuantity = newQuantity;
+    }
 }
