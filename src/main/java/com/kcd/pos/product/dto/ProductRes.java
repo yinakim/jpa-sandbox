@@ -1,13 +1,15 @@
 package com.kcd.pos.product.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.kcd.pos.common.dto.BaseDto;
 import com.kcd.pos.product.domain.BgColor;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 @Getter
 @JsonPropertyOrder({
@@ -48,10 +50,13 @@ public class ProductRes extends BaseDto {
     @Schema(name = "상품이 속한 카테고리")
     private CategoryRes category;
 
+    @Schema(name = "상품 옵션그룹 목록")
+    private List<OptionGroupRes> optionGroupResList = Collections.emptyList();
+
     @Builder
     public ProductRes(
             String createdBy, LocalDateTime createdAt, String modifiedBy, LocalDateTime modifiedAt,
-            String productCd, String productNm, int price, BgColor bgColor, String taxYn, String storeId, CategoryRes category) {
+            String productCd, String productNm, int price, BgColor bgColor, String taxYn, String storeId, CategoryRes category, List<OptionGroupRes> optionGroupResList) {
         super(createdBy, createdAt, modifiedBy, modifiedAt);
         this.productCd = productCd;
         this.productNm = productNm;
@@ -60,5 +65,6 @@ public class ProductRes extends BaseDto {
         this.taxYn = taxYn;
         this.storeId = storeId;
         this.category = category;
+        this.optionGroupResList = optionGroupResList;
     }
 }

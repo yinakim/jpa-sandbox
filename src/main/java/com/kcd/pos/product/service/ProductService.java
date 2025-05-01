@@ -10,13 +10,11 @@ import com.kcd.pos.product.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -32,6 +30,44 @@ public class ProductService {
     private final ProductOptionGroupRepository productOptionGroupRepository;
     private final OptionGroupRepository optionGroupRepository;
     private final OptionRepsitory optionRepsitory;
+
+    /**
+     * CategoryRes - Category 매핑
+     */
+    private CategoryRes categoryResMapper(Category category) {
+        // 카테고리 변환
+        return CategoryRes.builder()
+                .categoryId(category.getCategoryId())
+                .categoryNm(category.getCategoryNm())
+                .storeId(category.getStoreId())
+                .createdAt(category.getCreatedAt())
+                .createdBy(category.getCreatedBy())
+                .modifiedAt(category.getModifiedAt())
+                .modifiedBy(category.getModifiedBy())
+                .build();
+    }
+
+    /**
+     * 1. ProductRes - Product 매핑, 상품옵션(OptionGroup, Option) 데이터 매핑
+     * productCd 값 지정 필수 (Product.id != Product.productCd)
+     */
+    private ProductRes productResMapperWithOptions(Product product, List<OptionGroupRes> optionGroupResList) {
+        CategoryRes categoryRes = categoryResMapper(product.getCategory());
+        return ProductRes.builder()
+                .productCd(product.getProductCd())
+                .productNm(product.getProductNm())
+                .price(product.getPrice())
+                .bgColor(product.getBgColor())
+                .taxYn(product.getTaxYn())
+                .storeId(product.getStoreId())
+                .category(categoryRes)
+                .optionGroupResList(optionGroupResList)
+                .createdAt(product.getCreatedAt())
+                .createdBy(product.getCreatedBy())
+                .modifiedAt(product.getModifiedAt())
+                .modifiedBy(product.getModifiedBy())
+                .build();
+    }
 
     /**
      * ProductRes - Product 매핑
@@ -63,6 +99,32 @@ public class ProductService {
                 .modifiedBy(product.getModifiedBy())
                 .build();
     }
+
+//    /**
+//     * OptionGroupRes - OptionGroup 매핑
+//     * OptionRes - Option 매핑
+//     */
+//    private List<OptionGroupRes> productOptionGrpOptionMapper(List<OptionGroup> optionGroups) {
+//        return optionGroups.stream()
+//                .filter(og -> "N".equals(og.getDeleteYn())) // 삭제되지 않은 옵션그룹만
+//                .map(og -> {
+//                    List<OptionRes> optionResList = og.getOptions().stream()
+//                            .filter(opt -> "N".equals(opt.getDeleteYn())) // 삭제되지 않은 옵션만
+//                            .map(opt -> OptionRes.builder()
+//                                    .optionId(opt.getOptionId())
+//                                    .optionNm(opt.getOptionNm())
+//                                    .extraPrice(opt.getExtraPrice())
+//                                    .build())
+//                            .collect(Collectors.toList());
+//
+//                    return OptionGroupRes.builder()
+//                            .optionGrpId(og.getOptionGrpId())
+//                            .optionGrpNm(og.getOptionGrpNm())
+//                            .options(optionResList)
+//                            .build();
+//                })
+//                .collect(Collectors.toList());
+//    }
 
     /**
      * 신규상품 등록
@@ -193,27 +255,69 @@ public class ProductService {
     }
 
     /**
-     * 상품고유ID로 상품 단건 조회
+     * 조건 별 상품조회
      */
-    public ProductRes getProductByproductCd(String productCd) {
-        Product product = productRepository.findByProductCd(productCd)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. 상품고유ID : " + productCd));
-        ProductRes productRes = productResMapper(product);
-        return productRes;
+    public List<ProductRes> getProducts(ProductReq request) {
+        List<Product> products = productRepository.findProductsByConditions(
+                request.getProductCd(),
+                request.getProductNm(),
+                request.getMinPrice(),
+                request.getMaxPrice(),
+                request.getBgColor(),
+                request.getTaxYn(),
+                request.getStoreId(),
+                request.getCategory(),
+                DataStatus.DELETE_N
+        );
+
+        return products.stream()
+                .map(product -> {
+                    List<OptionGroupRes> optionGroups = getOptionGroupsByProductId(product.getProductId());
+                    return productResMapperWithOptions(product, optionGroups);
+                })
+                .collect(Collectors.toList());
     }
 
     /**
-     * 상품 목록 조회
-     * TODO. price기준 조회 추가 - ex.일정금액 이상/이하인 상품목록 조회
-     * TODO. 카테고리 별 상품 목록 조회
+     * 상품 별 옵션그룹, 옵션목록 조회
+     * 상품에 연결된 옵션그룹 + 옵션 조회 (DELETE_N 기준)
      */
-    public List<ProductRes> getProductByProductNm(String productNm) {
-        List<Product> results = productRepository.findProductsByProductNmContainsIgnoreCase(productNm);
+    private List<OptionGroupRes> getOptionGroupsByProductId(Long productId) {
+        List<ProductOptionGroup> mappings = productOptionGroupRepository.findByProduct_ProductIdAndDeleteYn(productId, DataStatus.DELETE_N);
 
-        if(results.isEmpty()) return Collections.emptyList();
-        return results.stream()
-                .map(product -> productResMapper(product))
-                .collect(Collectors.toList());
+        return mappings.stream()
+                .map(pog -> {
+                    OptionGroup og = pog.getOptionGroup();
+                    List<OptionRes> options = og.getOptions().stream()
+                            .filter(opt -> DataStatus.DELETE_N.equals(opt.getDeleteYn())) // 삭제되지 않은 옵션만
+                            .map(opt -> OptionRes.builder()
+                                    .optionId(opt.getOptionId())
+                                    .optionNm(opt.getOptionNm())
+                                    .extraPrice(opt.getExtraPrice())
+                                    .build())
+                            .collect(Collectors.toList());
+
+                    return OptionGroupRes.builder()
+                            .optionGrpId(og.getOptionGrpId())
+                            .optionGrpNm(og.getOptionGrpNm())
+                            .options(options)
+                            .build();
+                }).collect(Collectors.toList());
+    }
+
+
+    /**
+     * 상품고유ID로 상품 단건 조회
+     */
+    public ProductRes getProductByproductCd(String productCd) {
+        // 상품 상세 조회
+        Product product = productRepository.findByProductCd(productCd)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. 상품고유ID : " + productCd));
+
+        // 상품 옵션 목록 조회
+        List<OptionGroupRes> optionGroupsByProductId = getOptionGroupsByProductId(product.getProductId());
+
+        return productResMapperWithOptions(product, optionGroupsByProductId);
     }
 
     /**
@@ -258,7 +362,7 @@ public class ProductService {
         product.changeProductNm(request.getProductNm());
         product.changePrice(request.getPrice());
         product.changeCategory(category);
-        product.changeBgColor(request.getBgColor());
+        product.changeBgColor(color);
         product.changeTaxYn(request.getTaxYn());
     }
 
@@ -270,7 +374,6 @@ public class ProductService {
     public void safeDeleteProduct(String productCd) {
         Product product = productRepository.findByProductCd(productCd)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. ID: " + productCd));
-        //setDeleteYnProductChildren(product.getProductId(), DELETE_Y);
         safeDeleteProductChildren(product.getProductId());
         product.safeDeleteProduct();
     }
@@ -289,39 +392,6 @@ public class ProductService {
             }
             og.safeDelete();
             pog.safeDelete();
-        }
-    }
-
-    /**
-     * 상품 삭제/복구
-     * 상품에 종속, 매핑된 값의 DELETE_YN 변경 담당
-     */
-    private void setDeleteYnProductChildren(Long productId, String deleteYn) {
-        // 타겟 데이터 조회를 위한 조건생성
-        String targetCondition = deleteYn.equals(DataStatus.DELETE_Y) ? DataStatus.DELETE_N : DataStatus.DELETE_Y;
-
-        // 매핑 테이블에서 productId로 조회, 파라미터로 받은 deleteYn 값과 반대값인 데이터를 조회해온다 (파라미터 값을 적용해야하므로)
-        List<ProductOptionGroup> targetDatas = productOptionGroupRepository
-                .findByProduct_ProductIdAndDeleteYn(productId, targetCondition);
-
-        if(deleteYn.equals(DataStatus.DELETE_Y)) {
-            for (ProductOptionGroup pog : targetDatas) {
-                OptionGroup og = pog.getOptionGroup();
-                for (Option opt : og.getOptions()) {
-                    opt.safeDelete();
-                }
-                og.safeDelete();
-                pog.safeDelete();
-            }
-        } else {
-            for (ProductOptionGroup pog : targetDatas) {
-                OptionGroup og = pog.getOptionGroup();
-                for (Option opt : og.getOptions()) {
-                    opt.recovery();
-                }
-                og.recovery();
-                pog.recovery();
-            }
         }
     }
 
