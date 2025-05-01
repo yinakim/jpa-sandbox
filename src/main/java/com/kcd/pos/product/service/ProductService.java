@@ -1,5 +1,6 @@
 package com.kcd.pos.product.service;
 
+import com.kcd.pos.common.constants.DataStatus;
 import com.kcd.pos.common.constants.ErrorCode;
 import com.kcd.pos.common.exception.SequenceSaveException;
 import com.kcd.pos.common.util.JsonUtil;
@@ -24,15 +25,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 public class ProductService {
-
-    // TODO. 따로추출
-    public static final String ACTIVE_Y = "Y";
-    public static final String DELETE_Y = "Y";
-    public static final String REQUIRE_Y = "Y";
-
-    public static final String ACTIVE_N = "N";
-    public static final String DELETE_N = "N";
-    public static final String REQUIRE_N = "N";
 
     private final ProductRepository productRepository;
     private final ProductCdSeqRepository productCdSeqRepository;
@@ -152,9 +144,9 @@ public class ProductService {
                     .optionGrpNm(reqOptGrp.getOptionGrpNm())
                     .minSelectCnt(reqOptGrp.getMinSelectCnt())
                     .maxSelectCnt(reqOptGrp.getMaxSelectCnt())
-                    .activeYn(ACTIVE_Y)
-                    .deleteYn(DELETE_N)
-                    .requireYn(REQUIRE_Y)
+                    .activeYn(DataStatus.ACTIVE_Y)
+                    .deleteYn(DataStatus.DELETE_N)
+                    .requireYn(DataStatus.REQUIRE_Y)
                     .build();
             OptionGroup savedOptionGroup = optionGroupRepository.save(optionGroup); // 응답결과 반환 필요
 
@@ -166,8 +158,8 @@ public class ProductService {
                         .optionNm(optionReq.getOptionNm())
                         .extraPrice(optionReq.getExtraPrice())
                         .optionGroup(savedOptionGroup)
-                        .activeYn(ACTIVE_Y)
-                        .deleteYn(DELETE_N)
+                        .activeYn(DataStatus.ACTIVE_Y)
+                        .deleteYn(DataStatus.DELETE_N)
                         .build();
 
                 Option savedOption = optionRepsitory.save(option);
@@ -181,8 +173,8 @@ public class ProductService {
 
             // 3. 상품-옵션그룹 매핑
             ProductOptionGroup pog = ProductOptionGroup.builder()
-                    .activeYn(ACTIVE_Y)
-                    .deleteYn(DELETE_N)
+                    .activeYn(DataStatus.ACTIVE_Y)
+                    .deleteYn(DataStatus.DELETE_N)
                     .build();
             pog.assignToProduct(savedProduct);
             pog.assignToOptionGroup(savedOptionGroup);
@@ -289,7 +281,7 @@ public class ProductService {
      */
     private void safeDeleteProductChildren(Long productId) {
         List<ProductOptionGroup> targetDatas = productOptionGroupRepository
-                .findByProduct_ProductIdAndDeleteYn(productId, DELETE_N); // N -> Y
+                .findByProduct_ProductIdAndDeleteYn(productId, DataStatus.DELETE_N); // N -> Y
         for (ProductOptionGroup pog : targetDatas) {
             OptionGroup og = pog.getOptionGroup();
             for (Option opt : og.getOptions()) {
@@ -306,13 +298,13 @@ public class ProductService {
      */
     private void setDeleteYnProductChildren(Long productId, String deleteYn) {
         // 타겟 데이터 조회를 위한 조건생성
-        String targetCondition = deleteYn.equals(DELETE_Y) ? DELETE_N : DELETE_Y;
+        String targetCondition = deleteYn.equals(DataStatus.DELETE_Y) ? DataStatus.DELETE_N : DataStatus.DELETE_Y;
 
         // 매핑 테이블에서 productId로 조회, 파라미터로 받은 deleteYn 값과 반대값인 데이터를 조회해온다 (파라미터 값을 적용해야하므로)
         List<ProductOptionGroup> targetDatas = productOptionGroupRepository
                 .findByProduct_ProductIdAndDeleteYn(productId, targetCondition);
 
-        if(deleteYn.equals(DELETE_Y)) {
+        if(deleteYn.equals(DataStatus.DELETE_Y)) {
             for (ProductOptionGroup pog : targetDatas) {
                 OptionGroup og = pog.getOptionGroup();
                 for (Option opt : og.getOptions()) {
