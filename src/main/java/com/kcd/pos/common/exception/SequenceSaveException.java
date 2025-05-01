@@ -1,5 +1,7 @@
 package com.kcd.pos.common.exception;
 
+import com.kcd.pos.common.constants.ErrorCode;
+
 public class SequenceSaveException extends RuntimeException{
 
     private final ErrorCode errorCode;
