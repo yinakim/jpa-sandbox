@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
 @Entity
-@Table(name = "product")
+@Table(name = "PRODUCT")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "delete_yn = 'N'")
 @Getter

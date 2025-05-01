@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "product_option_group")
+@Table(name = "PRODUCT_OPTION_GROUP")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductOptionGroup extends BaseEntity {

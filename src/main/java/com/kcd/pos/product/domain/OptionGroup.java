@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "option_group")
+@Table(name = "OPTION_GROUP")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OptionGroup extends BaseEntity { // Product -> OptionGrp(1:N) -> Option(1:N) / ProductOptionGroup join

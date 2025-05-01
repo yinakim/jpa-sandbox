@@ -1,5 +1,6 @@
 package com.kcd.pos.order.domain;
 
+import com.kcd.pos.common.constants.DataStatus;
 import com.kcd.pos.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "order_item")
+@Table(name = "ORDER_ITEM")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "delete_yn = 'N'")
 @Getter
@@ -30,6 +31,9 @@ public class OrderItem extends BaseEntity {
     @Column(name = "product_nm", nullable = false, length = 100)
     private String productNm;
 
+    @Column(name = "delete_yn", nullable = false, length = 1)
+    private String deleteYn = "N";
+
     @Column(name = "item_price", nullable = false)
     private int itemPrice; // product.price를 가져오긴 하지만 별도 단가 저장하기 위해 itemPrice로 명명
 
@@ -39,7 +43,7 @@ public class OrderItem extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    private Orders order;
+    private OrderMaster orderMaster;
 
     @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemOption> orderItemOptions = new ArrayList<>();
@@ -47,7 +51,7 @@ public class OrderItem extends BaseEntity {
     @Builder
     public OrderItem(
             String createdBy, LocalDateTime createdAt, String modifiedBy, LocalDateTime modifiedAt,
-            Long orderItemId, Long productId, String productNm, int itemPrice, int itemQuantity, Orders order
+            Long orderItemId, Long productId, String productNm, int itemPrice, int itemQuantity, OrderMaster orderMaster, String deleteYn
 
     ) {
         super(createdBy, createdAt, modifiedBy, modifiedAt);
@@ -56,15 +60,27 @@ public class OrderItem extends BaseEntity {
         this.itemQuantity = itemQuantity;
         this.productNm = productNm;
         this.itemPrice = itemPrice;
-        this.order = order;
+        this.orderMaster = orderMaster;
+        this.deleteYn = deleteYn;
     }
 
-    public void assignToOrders(Orders order) {
-        this.order = order;
+    public void assignToOrders(OrderMaster orderMaster) {
+        this.orderMaster = orderMaster;
     }
 
     public void addOrderItemOption(OrderItemOption option) {
         this.orderItemOptions.add(option); // list에 하나씩 추가
         option.assignToOrderItem(this); // 자식 -> 부모 할당(연관관계 설정)
+    }
+
+    public void safeDelete() {
+        this.deleteYn = DataStatus.DELETE_Y;
+    }
+
+    public void changeItemQuantity(int newQuantity) {
+        if (newQuantity < 1) {
+            throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
+        }
+        this.itemQuantity = newQuantity;
     }
 }

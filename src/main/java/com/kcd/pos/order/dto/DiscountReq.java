@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 public class DiscountReq {
-    @Schema(description = "할인유형", example = "PERCENT/AMOUNT")
+    @Schema(description = "할인유형", example = "PERCENT/AMOUNT/EMPTY")
     @NotNull(message = "할인유형은 필수입니다.")
     private final String discountType;
 
