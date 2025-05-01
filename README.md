@@ -35,7 +35,7 @@
 
 ## 4. API Endpoints
 * 주요 API 엔드포인트는 다음과 같습니다.     
-* Postman 컬렉션 :  [상품&주문관리 API.postman_collection.json](src/main/resources/sample-json/상품&주문관리 API.postman_collection.json)
+* Postman 컬렉션 :  [상품&주문관리 API.postman_collection.json](src/main/resources/api_collection_product_order.json)
 
 ### 4.1. 카테고리 (Category) 관리
 
