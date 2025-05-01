@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "product_cd_seq")
+@Table(name = "PRODUCT_CD_SEQ")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class ProductCdSeq {

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "order_item")
+@Table(name = "ORDER_ITEM")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "delete_yn = 'N'")
 @Getter
