@@ -10,6 +10,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@Schema(description = "옵션그룹 등록정보 응답 DTO")
 public class OptionGroupRegisterRes {
 
     @Schema(name = "옵션 그룹 ID", example = "사이즈", maxLength = 20)

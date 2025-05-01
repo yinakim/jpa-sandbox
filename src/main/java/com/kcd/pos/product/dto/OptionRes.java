@@ -4,9 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
-@Schema(name = "상품 옵션항목 DTO")
 @Getter
 @Builder
+@Schema(name = "상품 옵션항목 응답 DTO")
 public class OptionRes {
     @Schema(name = "옵션ID")
     private Long optionId;

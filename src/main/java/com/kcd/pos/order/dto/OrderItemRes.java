@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "주문 항목 정보")
+@Schema(description = "주문 항목 정보 응답 DTO")
 public class OrderItemRes {
     @Schema(description = "주문 항목 ID", example = "100")
     private Long orderItemId;

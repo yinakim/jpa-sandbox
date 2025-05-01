@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "주문 할인 정보")
+@Schema(description = "주문 할인 정보 응답 DTO")
 public class DiscountRes {
 
     @Schema(description = "할인 타입", example = "PERCENT", allowableValues = {"PERCENT", "AMOUNT"})

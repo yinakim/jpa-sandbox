@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
+@Schema(description = "키테고리 등록정보 응답 DTO")
 public class CategoryRegisterRes extends BaseDto {
 
     @Schema(name = "카테고리ID")

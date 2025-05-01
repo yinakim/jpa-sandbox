@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
+@Schema(description = "주문 할인 정보 요청 DTO")
 public class DiscountReq {
     @Schema(description = "할인유형", example = "PERCENT/AMOUNT/EMPTY")
     @NotNull(message = "할인유형은 필수입니다.")

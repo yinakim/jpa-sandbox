@@ -13,11 +13,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
-@Schema(name = "주문 조회 요청용 DTO")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(name = "주문 조회 요청 DTO")
 public class OrderReq {
     @Schema(description = "주문 ID (단건 조회용)", example = "1")
     private Long orderId; // null체크
