@@ -90,7 +90,6 @@ public class OrderMasterService {
                         .optionId(option.getOptionId())
                         .optionNm(option.getOptionNm())
                         .extraPrice(option.getExtraPrice())
-                        .deleteYn(DataStatus.DELETE_N)
                         .orderItem(orderItem) // 아직 OrderItem.OrderItemId 없음
                         .build();
 
