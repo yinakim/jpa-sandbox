@@ -1,20 +1,15 @@
 package com.kcd.pos.order.controller;
 
-import com.kcd.pos.order.dto.OrderItemQuantiyReq;
-import com.kcd.pos.order.dto.OrderRegisterReq;
-import com.kcd.pos.order.dto.OrderReq;
-import com.kcd.pos.order.dto.OrderRes;
+import com.kcd.pos.order.dto.*;
 import com.kcd.pos.order.service.OrderMasterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Tag(name = "Order", description = "주문관리 API")
@@ -28,9 +23,9 @@ public class OrderController {
     @Operation(summary = "신규 주문 등록", description = "신규 주문(주문항목 별 주문옵션 포함)을 등록합니다.")
     @ApiResponse(responseCode = "200", description = "신규주문 등록 성공")
     @PostMapping
-    public ResponseEntity<Void> registerOrder(@RequestBody OrderRegisterReq orderRegisterReq){
-        service.registerOrder(orderRegisterReq);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<OrderRegisterRes> registerOrder(@RequestBody OrderRegisterReq orderRegisterReq){
+        OrderRegisterRes orderRegisterRes = service.registerOrder(orderRegisterReq);
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderRegisterRes);
     }
 
     @Operation(summary = "주문 목록 조회", description = "")

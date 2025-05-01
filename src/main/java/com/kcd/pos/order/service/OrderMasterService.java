@@ -2,40 +2,34 @@ package com.kcd.pos.order.service;
 
 import com.kcd.pos.common.constants.DataStatus;
 import com.kcd.pos.common.constants.DiscountType;
+import com.kcd.pos.common.constants.TestConstants;
 import com.kcd.pos.order.domain.Discount;
 import com.kcd.pos.order.domain.OrderItem;
 import com.kcd.pos.order.domain.OrderItemOption;
 import com.kcd.pos.order.domain.OrderMaster;
 import com.kcd.pos.order.dto.*;
-import com.kcd.pos.order.repository.OrderItemOptionRepository;
 import com.kcd.pos.order.repository.OrderItemRepository;
 import com.kcd.pos.order.repository.OrderMasterRepository;
 import com.kcd.pos.product.domain.Option;
 import com.kcd.pos.product.domain.Product;
-import com.kcd.pos.product.repository.OptionGroupRepository;
 import com.kcd.pos.product.repository.OptionRepsitory;
-import com.kcd.pos.product.repository.ProductOptionGroupRepository;
 import com.kcd.pos.product.repository.ProductRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderMasterService {
     private final OrderMasterRepository orderMasterRepository;
     private final ProductRepository productRepository;
-    private final OptionGroupRepository optionGroupRepository;
-    private final ProductOptionGroupRepository productOptionGroupRepository;
     private final OptionRepsitory optionRepsitory;
-    private final OrderItemOptionRepository orderItemOptionRepository;
     private final OrderItemRepository orderItemRepository;
 
     /**
@@ -47,7 +41,10 @@ public class OrderMasterService {
      * 4. 저장
      */
     @Transactional
-    public void registerOrder(OrderRegisterReq request) {
+    public OrderRegisterRes registerOrder(OrderRegisterReq request) {
+        int originPriceSum = 0; // 주문 총액 합산
+        int itemPriceSum = 0;   // 상품가격 합산
+        int extraPriceSum = 0;  // 옵션 추가금 합산
 
         // 1. 할인 체크, 변환
         Discount discount = null;
@@ -62,9 +59,6 @@ public class OrderMasterService {
 
         // 2. Order 생성
         OrderMaster orderMaster = OrderMaster.builder()
-                .originPrice(request.getOriginPrice())
-                .totalPrice(request.getTotalPrice())
-                .discountPrice(request.getDiscountPrice())
                 .discount(discount)
                 .deleteYn(DataStatus.DELETE_N)
                 .build();
@@ -73,35 +67,91 @@ public class OrderMasterService {
         for (OrderItemRegisterReq itemReq : request.getOrderItems()) {
             Product product = productRepository.findById(itemReq.getProductId())
                     .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 상품입니다."));
+            int productPrice = product.getPrice();
+            Integer itemQuantity = itemReq.getItemQuantity();
+            int itemPrice = productPrice * itemQuantity;
 
             OrderItem orderItem = OrderItem.builder()
                     .productId(product.getProductId())
                     .productNm(product.getProductNm())
-                    .itemPrice(product.getPrice())
+                    .itemPrice(productPrice)
+                    .itemQuantity(itemQuantity)
                     .deleteYn(DataStatus.DELETE_N)
-                    .itemQuantity(itemReq.getItemQuantity())
                     .build();
 
-            // 옵션이 있는 경우만 처리
 
+            // 옵션이 있는 경우만 처리
             for (OrderItemOptionRegisterReq itemOptionReq : itemReq.getItemOptions()) {
                 Option option = optionRepsitory.findByOptionIdAndDeleteYn(itemOptionReq.getOptionId(), DataStatus.DELETE_N)
                         .orElseThrow(() -> new IllegalArgumentException("옵션을 찾을 수 없습니다."));
+                int extraPrice = option.getExtraPrice();
 
                 OrderItemOption orderItemOption = OrderItemOption.builder()
                         .optionId(option.getOptionId())
                         .optionNm(option.getOptionNm())
-                        .extraPrice(option.getExtraPrice())
+                        .extraPrice(extraPrice)
                         .orderItem(orderItem) // 아직 OrderItem.OrderItemId 없음
                         .build();
-
+                extraPriceSum += extraPrice; // itemOption별 상품가격 누적
                 orderItem.addOrderItemOption(orderItemOption);
             } // orderItemOptions
 
+            itemPriceSum += itemPrice; // item 별 상품가격 누적
             orderMaster.addOrderItem(orderItem);
         } // orderItems
 
+        originPriceSum = itemPriceSum + extraPriceSum;
+        orderMaster.calculateOrderPrices(originPriceSum);
         OrderMaster savedOrder = orderMasterRepository.save(orderMaster);
+        return makeBill(savedOrder);
+    }
+
+    /**
+     * 주문결과 세팅
+     */
+    private OrderRegisterRes makeBill(OrderMaster savedOrder){
+        // 할인내용
+        Discount discount = savedOrder.getDiscount();
+        DiscountType discountType = discount.getDiscountType();
+        int discountValue = discount.getDiscountValue();
+
+        // 항목 & 항목 별 옵션 세팅
+        List<OrderItemRes> itemResList = savedOrder.getOrderItems().stream()
+                .map(orderItem -> {
+                    List<OrderItemOptionRes> optionResList = orderItem.getOrderItemOptions().stream()
+                            .map(option -> OrderItemOptionRes.builder()
+                                    .orderItemOptionId(option.getOrderItemOptionId())
+                                    .optionId(option.getOptionId())
+                                    .optionNm(option.getOptionNm())
+                                    .extraPrice(option.getExtraPrice())
+                                    .build())
+                            .collect(Collectors.toList());
+
+                    return OrderItemRes.builder()
+                            .orderItemId(orderItem.getOrderItemId())
+                            .itemPrice(orderItem.getItemPrice())
+                            .itemQuantity(orderItem.getItemQuantity())
+                            .productId(orderItem.getProductId())
+                            .productNm(orderItem.getProductNm())
+                            .options(optionResList)
+                            .build();
+                }).collect(Collectors.toList());
+
+
+        return OrderRegisterRes.builder()
+                .orderId(savedOrder.getOrderId())
+                .storeId(TestConstants.SAMPLE_STORE_ID)
+                .posId("POS-1")
+                .originPrice(savedOrder.getOriginPrice())
+                .discountPrice(savedOrder.getDiscountPrice())
+                .totalPrice(savedOrder.getTotalPrice())
+                .orderCreatedAt(savedOrder.getCreatedAt())
+                .orderCreatedBy(savedOrder.getCreatedBy())
+                .orderItems(itemResList)
+                .discountType(discountType.getTypeName())
+                .discountPercent(discountType.equals(DiscountType.PERCENT) ? discountValue : 0)
+                .discountAmount(discountType.equals(DiscountType.AMOUNT) ?  discountValue : 0)
+                .build();
     }
 
 
