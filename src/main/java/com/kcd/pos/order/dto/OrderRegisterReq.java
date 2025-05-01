@@ -29,7 +29,7 @@ public class OrderRegisterReq { // 금액관련 필드는 final
     private final Integer totalPrice;
 
     @Schema(description = "할인정보")
-    private final DiscountReq discount; // todo. 할인정보는 필수가 아닐수있음
+    private final DiscountReq discount;
 
     @Schema(description = "주문상품목록")
     @NotNull(message = "주문 항목 목록은 필수입니다.")

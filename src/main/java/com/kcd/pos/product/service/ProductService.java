@@ -79,7 +79,7 @@ public class ProductService {
      */
     @Transactional
     public ProductRegisterRes registerProduct(ProductRegisterReq registerReq) {
-        // 1. SEQ 조회 - productCdSeq 조회, 증가 TODO. lock에 따른 예외처리 추가 필요성 검토
+        // 1. SEQ 조회 - productCdSeq 조회, 증가
         Long maxSeq = productCdSeqRepository.findMaxSequenceNumberWithLock();
         long nextSeq = Objects.nonNull(maxSeq) ? maxSeq + 1 : 1L;
 
@@ -107,15 +107,13 @@ public class ProductService {
             productCdSeqRepository.save(new ProductCdSeq(nextSeq));
         } catch (Exception e){
             LocalDateTime errorTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-            // DataDog 에러로그 시간차 상관없이 발생시각 파악 가능하도록 로깅 TODO. DataDog 용 로깅설정 추가하기
+            // DataDog 에러로그 시간차 상관없이 발생시각 파악 가능하도록 로깅
             log.error("[상품등록 실패] - PRODUCT_ID_SEQ:{} / 발생시간:{} ", nextSeq, errorTime, e);
             throw new SequenceSaveException(ErrorCode.SEQUENCE_SAVE_FAILED, JsonUtil.toJson(savedProduct));
         }
 
         // 4. [옵션그룹(+ 옵션포함)] 등록 및 [상품-옵션그룹] 매핑저장
-        // TODO. 매핑할 때 엔티티를 넘겨야 해서 한번에 두가지 동작수행(옵션그룹과 옵션 생성, 매핑) 분리하고싶음
         List<OptionGroupRegisterRes> optionGroupRegisterRes = saveOptionGrpAndMapToProduct(registerReq.getOptionGroups(), savedProduct);
-
 
         // 6. 정상등록 결과반환
         return ProductRegisterRes.builder()

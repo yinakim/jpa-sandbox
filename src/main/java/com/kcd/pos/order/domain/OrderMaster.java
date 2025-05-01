@@ -5,6 +5,7 @@ import com.kcd.pos.common.constants.DiscountType;
 import com.kcd.pos.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "delete_yn = 'N'")
 @Getter
+@Slf4j
 public class OrderMaster extends BaseEntity {
 
     @Id
@@ -75,14 +77,14 @@ public class OrderMaster extends BaseEntity {
             finalPrice = (int) Math.round(originPriceSum * (1 - discountValue / 100.0));
         }
 
-        System.out.println("========= 할인계산중 =========");
+        log.info("========= 할인계산중 =========");
         // 최종금액 세팅
         this.originPrice = originPriceSum;
         this.discountPrice = originPriceSum - finalPrice;
         this.totalPrice = finalPrice;
-        System.out.println("[주문 - 총액]"+originPriceSum);
-        System.out.println("[주문 - 할인액]"+(originPriceSum - finalPrice));
-        System.out.println("[주문 - 최종 주문금액]"+finalPrice);
-        System.out.println("============================");
+        log.info("[주문 - 총액]"+originPriceSum);
+        log.info("[주문 - 할인액]"+(originPriceSum - finalPrice));
+        log.info("[주문 - 최종 주문금액]"+finalPrice);
+        log.info("============================");
     }
 }
