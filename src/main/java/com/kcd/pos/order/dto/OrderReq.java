@@ -31,14 +31,6 @@ public class OrderReq {
     @Schema(description = "조회 종료일시 (yyyyMMddHHmmss)", example = "20250501235959")
     private LocalDateTime toDate;
 
-//    @Schema(description = "조회 시작일시 (yyyyMMddHHmmss)", example = "20250430000000")
-//    @NotNull
-//    private String fromDateStr; // param
-//
-//    @Schema(description = "조회 종료일시 (yyyyMMddHHmmss)", example = "20240131235959")
-//    @NotBlank
-//    private String toDateStr; // param
-
     /**
      * 문자열 파라미터를 LocalDateTime으로 변환
      * OrderReq 반환
@@ -68,12 +60,4 @@ public class OrderReq {
                 .toDate(to)
                 .build();
     }
-
-    // 상세조회만 orderId null 체크
-    public void validOrderIdForOrderDetail(Long orderId) {
-        if(Objects.isNull(this.orderId)) {
-            throw new IllegalArgumentException("주문상세조회 시, orderId는 필수입니다.");
-        }
-    }
-
 }

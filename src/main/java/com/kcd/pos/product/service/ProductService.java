@@ -100,32 +100,6 @@ public class ProductService {
                 .build();
     }
 
-//    /**
-//     * OptionGroupRes - OptionGroup 매핑
-//     * OptionRes - Option 매핑
-//     */
-//    private List<OptionGroupRes> productOptionGrpOptionMapper(List<OptionGroup> optionGroups) {
-//        return optionGroups.stream()
-//                .filter(og -> "N".equals(og.getDeleteYn())) // 삭제되지 않은 옵션그룹만
-//                .map(og -> {
-//                    List<OptionRes> optionResList = og.getOptions().stream()
-//                            .filter(opt -> "N".equals(opt.getDeleteYn())) // 삭제되지 않은 옵션만
-//                            .map(opt -> OptionRes.builder()
-//                                    .optionId(opt.getOptionId())
-//                                    .optionNm(opt.getOptionNm())
-//                                    .extraPrice(opt.getExtraPrice())
-//                                    .build())
-//                            .collect(Collectors.toList());
-//
-//                    return OptionGroupRes.builder()
-//                            .optionGrpId(og.getOptionGrpId())
-//                            .optionGrpNm(og.getOptionGrpNm())
-//                            .options(optionResList)
-//                            .build();
-//                })
-//                .collect(Collectors.toList());
-//    }
-
     /**
      * 신규상품 등록
      * 1. 상품 고유ID 생성(DB SEQ 사용)
