@@ -90,7 +90,7 @@ public class CategoryService {
     public void updateCategory(Long categoryId, CategoryReq request) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + categoryId));
-        category.changeCategoryNm(request.getCategoryNm()); // dirtyChecking update
+        category.changeCategoryNm(request.getCategoryNm());
     }
 
     /**

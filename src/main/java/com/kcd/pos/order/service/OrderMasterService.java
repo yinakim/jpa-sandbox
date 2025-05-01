@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -34,7 +35,7 @@ public class OrderMasterService {
 
     /**
      * 주문등록
-     * 1. 할인여부 체크(nullable이므로)
+     * 1. 할인여부 체크(null인경우 EMPTY처리)
      * 2. Order 생성
      * 3. 주문항목처리
      * 3-1. 옵션처리
@@ -48,7 +49,7 @@ public class OrderMasterService {
 
         // 1. 할인 체크, 변환
         Discount discount = null;
-        if(Objects.nonNull(request.getDiscount())) {
+        if (Objects.nonNull(request.getDiscount())) {
             discount = Discount.builder()
                     .discountType(DiscountType.valueOf(request.getDiscount().getDiscountType()))
                     .discountValue(request.getDiscount().getDiscountValue())
@@ -79,7 +80,6 @@ public class OrderMasterService {
                     .deleteYn(DataStatus.DELETE_N)
                     .build();
 
-
             // 옵션이 있는 경우만 처리
             for (OrderItemOptionRegisterReq itemOptionReq : itemReq.getItemOptions()) {
                 Option option = optionRepsitory.findByOptionIdAndDeleteYn(itemOptionReq.getOptionId(), DataStatus.DELETE_N)
@@ -109,7 +109,7 @@ public class OrderMasterService {
     /**
      * 주문결과 세팅
      */
-    private OrderRegisterRes makeBill(OrderMaster savedOrder){
+    private OrderRegisterRes makeBill(OrderMaster savedOrder) {
         // 할인내용
         Discount discount = savedOrder.getDiscount();
         DiscountType discountType = discount.getDiscountType();
@@ -141,7 +141,7 @@ public class OrderMasterService {
         return OrderRegisterRes.builder()
                 .orderId(savedOrder.getOrderId())
                 .storeId(TestConstants.SAMPLE_STORE_ID)
-                .posId("POS-1")
+                .posId(TestConstants.SAMPLE_POS_ID)
                 .originPrice(savedOrder.getOriginPrice())
                 .discountPrice(savedOrder.getDiscountPrice())
                 .totalPrice(savedOrder.getTotalPrice())
@@ -150,7 +150,7 @@ public class OrderMasterService {
                 .orderItems(itemResList)
                 .discountType(discountType.getTypeName())
                 .discountPercent(discountType.equals(DiscountType.PERCENT) ? discountValue : 0)
-                .discountAmount(discountType.equals(DiscountType.AMOUNT) ?  discountValue : 0)
+                .discountAmount(discountType.equals(DiscountType.AMOUNT) ? discountValue : 0)
                 .build();
     }
 
@@ -164,16 +164,14 @@ public class OrderMasterService {
                 request.getOrderId(),
                 request.getFromDate(),
                 request.getToDate()
-                //request.getDeleteYn()
         );
 
-        List<OrderRes> responseList = new java.util.ArrayList<>();
-
+        List<OrderRes> responseList = new ArrayList<>();
         for (OrderMaster order : orders) {
-            List<OrderItemRes> itemResList = new java.util.ArrayList<>();
+            List<OrderItemRes> itemResList = new ArrayList<>();
 
             for (OrderItem item : order.getOrderItems()) {
-                List<OrderItemOptionRes> optionResList = new java.util.ArrayList<>();
+                List<OrderItemOptionRes> optionResList = new ArrayList<>();
 
                 for (OrderItemOption option : item.getOrderItemOptions()) {
                     OrderItemOptionRes optionRes = OrderItemOptionRes.builder()
@@ -182,7 +180,6 @@ public class OrderMasterService {
                             .optionNm(option.getOptionNm())
                             .extraPrice(option.getExtraPrice())
                             .build();
-
                     optionResList.add(optionRes);
                 }
 
@@ -194,12 +191,10 @@ public class OrderMasterService {
                         .itemQuantity(item.getItemQuantity())
                         .options(optionResList)
                         .build();
-
                 itemResList.add(itemRes);
             }
 
             DiscountRes discountRes = discountResMapper(order.getDiscount());
-
             OrderRes orderRes = OrderRes.builder()
                     .orderId(order.getOrderId())
                     .originPrice(order.getOriginPrice())
@@ -208,14 +203,14 @@ public class OrderMasterService {
                     .discount(discountRes)
                     .orderItems(itemResList)
                     .build();
-
             responseList.add(orderRes);
         }
-
         return responseList;
     }
 
-    // 할인정보 엔티티 -> dto
+    /**
+     * DiscountRes - Discount 매핑
+     */
     private DiscountRes discountResMapper(Discount discount) {
         return DiscountRes.builder()
                 .discountType(discount.getDiscountType().name())
@@ -229,7 +224,7 @@ public class OrderMasterService {
      * 주문 상세조회
      */
     public OrderRes getOrderDetail(Long orderId) {
-        if(Objects.isNull(orderId)) {
+        if (Objects.isNull(orderId)) {
             throw new IllegalArgumentException("주문상세조회 시, orderId는 필수입니다.");
         }
 
@@ -280,7 +275,6 @@ public class OrderMasterService {
 
     /**
      * 주문 항목 삭제 - 휴지통버튼
-     * @param orderItemId
      */
     @Transactional
     public void safeDeleteOrderItem(Long orderItemId) {
@@ -295,6 +289,7 @@ public class OrderMasterService {
 
     /**
      * 주문항목 수량변경
+     *
      * @param orderItemId
      */
     @Transactional

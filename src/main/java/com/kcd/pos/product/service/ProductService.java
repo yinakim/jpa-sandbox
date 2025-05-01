@@ -292,14 +292,6 @@ public class ProductService {
             throw new IllegalArgumentException("부가세는 'Y'(포함) 또는 'N'(미포함)만 입력 가능합니다.");
         }
 
-        /* 수정 가능한 필드
-            1. 상품명
-            2. 단가
-            4. 색상
-            5. 과세여부
-            3. 카테고리ID (카테고리 변경시)
-         */
-        // dirtyChecking update
         product.changeProductNm(request.getProductNm());
         product.changePrice(request.getPrice());
         product.changeCategory(category);
