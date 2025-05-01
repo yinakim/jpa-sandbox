@@ -1,7 +1,7 @@
 package com.kcd.pos.order.controller;
 
 import com.kcd.pos.order.dto.OrderRegisterReq;
-import com.kcd.pos.order.service.OrderService;
+import com.kcd.pos.order.service.OrderMasterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderService service;
+    private final OrderMasterService service;
 
     @PostMapping
     public ResponseEntity<Void> registerOrder(@RequestBody OrderRegisterReq orderRegisterReq){

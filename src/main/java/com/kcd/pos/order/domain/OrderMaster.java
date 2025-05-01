@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "order_master")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Orders extends BaseEntity {
+public class OrderMaster extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,7 +47,7 @@ public class Orders extends BaseEntity {
     }
 
     @Builder
-    public Orders(String createdBy, LocalDateTime createdAt, String modifiedBy, LocalDateTime modifiedAt,
+    public OrderMaster(String createdBy, LocalDateTime createdAt, String modifiedBy, LocalDateTime modifiedAt,
                   int originPrice, int totalPrice, int discountPrice, Discount discount, String deleteYn) {
         super(createdBy, createdAt, modifiedBy, modifiedAt);
         this.originPrice = originPrice;

@@ -5,13 +5,13 @@ import com.kcd.pos.common.constants.DiscountType;
 import com.kcd.pos.order.domain.Discount;
 import com.kcd.pos.order.domain.OrderItem;
 import com.kcd.pos.order.domain.OrderItemOption;
-import com.kcd.pos.order.domain.Orders;
+import com.kcd.pos.order.domain.OrderMaster;
 import com.kcd.pos.order.dto.OrderItemOptionRegisterReq;
 import com.kcd.pos.order.dto.OrderItemRegisterReq;
 import com.kcd.pos.order.dto.OrderRegisterReq;
 import com.kcd.pos.order.repository.OrderItemOptionRepository;
 import com.kcd.pos.order.repository.OrderItemRepository;
-import com.kcd.pos.order.repository.OrderRepository;
+import com.kcd.pos.order.repository.OrderMasterRepository;
 import com.kcd.pos.product.domain.Option;
 import com.kcd.pos.product.domain.Product;
 import com.kcd.pos.product.repository.OptionGroupRepository;
@@ -22,14 +22,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class OrderService {
-    private final OrderRepository orderRepository;
+public class OrderMasterService {
+    private final OrderMasterRepository orderRepository;
     private final ProductRepository productRepository;
     private final OptionGroupRepository optionGroupRepository;
     private final ProductOptionGroupRepository productOptionGroupRepository;
@@ -58,7 +56,7 @@ public class OrderService {
         }
 
         // 2. Order 생성
-        Orders order = Orders.builder()
+        OrderMaster orderMaster = OrderMaster.builder()
                 .originPrice(request.getOriginPrice())
                 .totalPrice(request.getTotalPrice())
                 .discountPrice(request.getDiscountPrice())
@@ -94,9 +92,9 @@ public class OrderService {
                 orderItem.addOrderItemOption(orderItemOption);
             } // orderItemOptions
 
-            order.addOrderItem(orderItem);
+            orderMaster.addOrderItem(orderItem);
         } // orderItems
 
-        Orders savedOrder = orderRepository.save(order);
+        OrderMaster savedOrder = orderRepository.save(orderMaster);
     }
 }

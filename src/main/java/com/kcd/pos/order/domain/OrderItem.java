@@ -39,7 +39,7 @@ public class OrderItem extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    private Orders order;
+    private OrderMaster orderMaster;
 
     @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemOption> orderItemOptions = new ArrayList<>();
@@ -47,7 +47,7 @@ public class OrderItem extends BaseEntity {
     @Builder
     public OrderItem(
             String createdBy, LocalDateTime createdAt, String modifiedBy, LocalDateTime modifiedAt,
-            Long orderItemId, Long productId, String productNm, int itemPrice, int itemQuantity, Orders order
+            Long orderItemId, Long productId, String productNm, int itemPrice, int itemQuantity, OrderMaster orderMaster
 
     ) {
         super(createdBy, createdAt, modifiedBy, modifiedAt);
@@ -56,11 +56,11 @@ public class OrderItem extends BaseEntity {
         this.itemQuantity = itemQuantity;
         this.productNm = productNm;
         this.itemPrice = itemPrice;
-        this.order = order;
+        this.orderMaster = orderMaster;
     }
 
-    public void assignToOrders(Orders order) {
-        this.order = order;
+    public void assignToOrders(OrderMaster orderMaster) {
+        this.orderMaster = orderMaster;
     }
 
     public void addOrderItemOption(OrderItemOption option) {
