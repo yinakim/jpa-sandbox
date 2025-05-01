@@ -2,18 +2,16 @@ package com.kcd.pos.order.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kcd.pos.order.domain.Discount;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+@Schema(description = "신규주문 등록 전용 요청데이터 DTO")
 @Getter
 public class OrderRegisterReq { // 금액관련 필드는 final
     @Schema(description = "원가", example = "10000")
@@ -36,8 +34,6 @@ public class OrderRegisterReq { // 금액관련 필드는 final
     @Schema(description = "주문상품목록")
     @NotNull(message = "주문 항목 목록은 필수입니다.")
     private final List<OrderItemRegisterReq> orderItems;
-
-    // todo. 계산 공식? 엔티티에?
 
     @JsonCreator
     public OrderRegisterReq(@JsonProperty("originPrice") Integer originPrice,

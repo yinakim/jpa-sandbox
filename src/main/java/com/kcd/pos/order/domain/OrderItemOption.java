@@ -30,6 +30,9 @@ public class OrderItemOption extends BaseEntity {
     @Column(name = "extra_price", nullable = false)
     private int extraPrice;
 
+    @Column(name = "delete_yn", nullable = false, length = 1)
+    private String deleteYn = "N";
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_item_id", nullable = false)
     private OrderItem orderItem;
@@ -37,13 +40,14 @@ public class OrderItemOption extends BaseEntity {
     @Builder
     public OrderItemOption(
             String createdBy, LocalDateTime createdAt, String modifiedBy, LocalDateTime modifiedAt,
-            Long orderItemOptionId, Long optionId, String optionNm, int extraPrice, OrderItem orderItem) {
+            Long orderItemOptionId, Long optionId, String optionNm, int extraPrice, OrderItem orderItem, String deleteYn) {
         super(createdBy, createdAt, modifiedBy, modifiedAt);
         this.orderItemOptionId = orderItemOptionId;
         this.optionId = optionId;
         this.optionNm = optionNm;
         this.extraPrice = extraPrice;
         this.orderItem = orderItem;
+        this.deleteYn = deleteYn;
     }
 
     public void assignToOrderItem(OrderItem orderItem) {

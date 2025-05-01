@@ -30,6 +30,9 @@ public class OrderItem extends BaseEntity {
     @Column(name = "product_nm", nullable = false, length = 100)
     private String productNm;
 
+    @Column(name = "delete_yn", nullable = false, length = 1)
+    private String deleteYn = "N";
+
     @Column(name = "item_price", nullable = false)
     private int itemPrice; // product.price를 가져오긴 하지만 별도 단가 저장하기 위해 itemPrice로 명명
 
@@ -47,7 +50,7 @@ public class OrderItem extends BaseEntity {
     @Builder
     public OrderItem(
             String createdBy, LocalDateTime createdAt, String modifiedBy, LocalDateTime modifiedAt,
-            Long orderItemId, Long productId, String productNm, int itemPrice, int itemQuantity, OrderMaster orderMaster
+            Long orderItemId, Long productId, String productNm, int itemPrice, int itemQuantity, OrderMaster orderMaster, String deleteYn
 
     ) {
         super(createdBy, createdAt, modifiedBy, modifiedAt);
@@ -57,6 +60,7 @@ public class OrderItem extends BaseEntity {
         this.productNm = productNm;
         this.itemPrice = itemPrice;
         this.orderMaster = orderMaster;
+        this.deleteYn = deleteYn;
     }
 
     public void assignToOrders(OrderMaster orderMaster) {

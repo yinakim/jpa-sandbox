@@ -1,5 +1,6 @@
 package com.kcd.pos.order.domain;
 
+import com.kcd.pos.common.constants.DiscountType;
 import com.kcd.pos.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "ORDER_MASTER")
@@ -37,8 +39,7 @@ public class OrderMaster extends BaseEntity {
     @Column(name = "delete_yn", nullable = false, length = 1)
     private String deleteYn = "N";
 
-
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "orderMaster", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     public void addOrderItem(OrderItem orderItem) {
@@ -53,7 +54,7 @@ public class OrderMaster extends BaseEntity {
         this.originPrice = originPrice;
         this.totalPrice = totalPrice;
         this.discountPrice = discountPrice;
-        this.discount = discount;
+        this.discount = Objects.isNull(discount) ? new Discount() : discount;
         this.deleteYn = deleteYn;
     }
 }
