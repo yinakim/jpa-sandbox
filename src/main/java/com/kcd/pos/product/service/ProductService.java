@@ -48,7 +48,7 @@ public class ProductService {
     }
 
     /**
-     * 1. ProductRes - Product 매핑, 상품옵션(OptionGroup, Option) 데이터 매핑
+     * ProductRes - Product 매핑, 상품옵션(OptionGroup, Option) 데이터 매핑
      * productCd 값 지정 필수 (Product.id != Product.productCd)
      */
     private ProductRes productResMapperWithOptions(Product product, List<OptionGroupRes> optionGroupResList) {
@@ -62,37 +62,6 @@ public class ProductService {
                 .storeId(product.getStoreId())
                 .category(categoryRes)
                 .optionGroupResList(optionGroupResList)
-                .createdAt(product.getCreatedAt())
-                .createdBy(product.getCreatedBy())
-                .modifiedAt(product.getModifiedAt())
-                .modifiedBy(product.getModifiedBy())
-                .build();
-    }
-
-    /**
-     * ProductRes - Product 매핑
-     * productCd 값 지정 필수 (Product.id != Product.productCd)
-     */
-    private ProductRes productResMapper(Product product) {
-        // 카테고리 변환
-        CategoryRes categoryRes = CategoryRes.builder()
-                .categoryId(product.getCategory().getCategoryId())
-                .categoryNm(product.getCategory().getCategoryNm())
-                .storeId(product.getCategory().getStoreId())
-                .createdAt(product.getCategory().getCreatedAt())
-                .createdBy(product.getCategory().getCreatedBy())
-                .modifiedAt(product.getCategory().getModifiedAt())
-                .modifiedBy(product.getCategory().getModifiedBy())
-                .build();
-
-        return ProductRes.builder()
-                .productCd(product.getProductCd())
-                .productNm(product.getProductNm())
-                .price(product.getPrice())
-                .bgColor(product.getBgColor())
-                .taxYn(product.getTaxYn())
-                .storeId(product.getStoreId())
-                .category(categoryRes)
                 .createdAt(product.getCreatedAt())
                 .createdBy(product.getCreatedBy())
                 .modifiedAt(product.getModifiedAt())
