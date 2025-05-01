@@ -63,6 +63,14 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @Operation(summary = "주문 항목 삭제", description = "")
+    @ApiResponse(responseCode = "204", description = "주문 항목 삭제 성공")
+    @DeleteMapping("/item/{orderItemId}")
+    public ResponseEntity<Void> safeDeleteOrderItem(@PathVariable Long orderItemId){
+        service.safeDeleteOrderItem(orderItemId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
     @Operation(summary = "주문 단건 삭제", description = "")
     @ApiResponse(responseCode = "204", description = "주문 삭제 성공")
     @DeleteMapping("/{orderId}")
@@ -70,7 +78,6 @@ public class OrderController {
         service.safeDeleteOrder(orderId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
 
 
 }

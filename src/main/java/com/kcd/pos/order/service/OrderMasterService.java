@@ -219,13 +219,28 @@ public class OrderMasterService {
     public void safeDeleteOrder(Long orderId) {
         OrderMaster orderMaster = orderMasterRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문건입니다."));
-        
+
         // 1. order item safeDelete
         orderMaster.getOrderItems()
                 .forEach(OrderItem::safeDelete);
 
         // 2. order safeDelete
         orderMaster.safeDelete();
+    }
+
+    /**
+     * 주문 항목 삭제 - 휴지통버튼
+     * @param orderItemId
+     */
+    @Transactional
+    public void safeDeleteOrderItem(Long orderItemId) {
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문항목입니다."));
+        // 마지막 항목만 남았는데 삭제하는 경우
+        if (1 == orderItem.getOrderMaster().getOrderItems().size()) {
+            orderItem.getOrderMaster().safeDelete(); // order safeDelete
+        }
+        orderItem.safeDelete(); // order item safeDelete
     }
 
     /**
