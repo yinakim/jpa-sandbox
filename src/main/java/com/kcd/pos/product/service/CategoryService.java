@@ -76,8 +76,6 @@ public class CategoryService {
      */
     public List<CategoryRes> getCategoryByCategoryNm(String categoryNm) {
         List<Category> results = categoryRepository.findCategoriesByCategoryNmContainsIgnoreCase(categoryNm);
-
-        if(results.isEmpty()) return Collections.emptyList();
         return results.stream()
                 .map(category -> categoryResMapper(category))
                 .collect(Collectors.toList());
