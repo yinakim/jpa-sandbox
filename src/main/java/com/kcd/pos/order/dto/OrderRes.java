@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Schema(name = "주문 조회 응답용 DTO")
+@Schema(name = "주문 조회 응답 DTO")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

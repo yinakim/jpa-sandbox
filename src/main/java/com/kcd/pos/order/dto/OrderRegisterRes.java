@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Schema(name = "주문완료 데이터 DTO")
+@Schema(name = "주문완료 데이터 응답 DTO")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

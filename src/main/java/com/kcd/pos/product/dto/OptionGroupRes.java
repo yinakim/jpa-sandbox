@@ -10,8 +10,8 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-@Schema(description = "옵션그룹 등록정보 응답 DTO")
-public class OptionGroupRegisterRes {
+@Schema(description = "옵션그룹 정보 응답 DTO")
+public class OptionGroupRes {
 
     @Schema(name = "옵션 그룹 ID", example = "사이즈", maxLength = 20)
     private Long optionGrpId;
@@ -20,10 +20,10 @@ public class OptionGroupRegisterRes {
     private String optionGrpNm;
 
     @Schema(name = "옵션목록")
-    private List<OptionRegisterRes> options = new ArrayList<>(); // 옵션ID, 이름만 있는 간단한 res
+    private List<OptionRes> options = new ArrayList<>(); // 옵션ID, 이름만 있는 간단한 res
 
     @Builder
-    public OptionGroupRegisterRes(Long optionGrpId, String optionGrpNm, List<OptionRegisterRes> options) {
+    public OptionGroupRes(Long optionGrpId, String optionGrpNm, List<OptionRes> options) {
         this.optionGrpId = optionGrpId;
         this.optionGrpNm = optionGrpNm;
         this.options = options;

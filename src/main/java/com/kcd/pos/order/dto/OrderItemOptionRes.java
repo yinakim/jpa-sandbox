@@ -6,7 +6,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "주문 항목별 옵션 정보")
+@Schema(description = "주문 항목별 옵션 정보 응답 DTO")
 public class OrderItemOptionRes {
     @Schema(description = "옵션 항목 ID", example = "200")
     private Long orderItemOptionId;

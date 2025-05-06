@@ -11,8 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-@Schema(description = "신규주문 등록 전용 요청데이터 DTO")
 @Getter
+@Schema(description = "신규주문 등록 전용 요청데이터 DTO")
 public class OrderRegisterReq { // 금액관련 필드는 final
     @Schema(description = "원가", example = "10000")
     @NotNull(message = "주문 원가(originPrice)는 필수입니다.")
@@ -29,7 +29,7 @@ public class OrderRegisterReq { // 금액관련 필드는 final
     private final Integer totalPrice;
 
     @Schema(description = "할인정보")
-    private final DiscountReq discount; // todo. 할인정보는 필수가 아닐수있음
+    private final DiscountReq discount;
 
     @Schema(description = "주문상품목록")
     @NotNull(message = "주문 항목 목록은 필수입니다.")

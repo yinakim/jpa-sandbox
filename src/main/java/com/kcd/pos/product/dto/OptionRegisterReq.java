@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@Schema(name = "옵션 등록요청 DTO")
 public class OptionRegisterReq {
 
     @Schema(name = "옵션명", example = "L", maxLength = 20)

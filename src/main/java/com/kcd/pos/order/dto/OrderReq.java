@@ -13,11 +13,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
-@Schema(name = "주문 조회 요청용 DTO")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(name = "주문 조회 요청 DTO")
 public class OrderReq {
     @Schema(description = "주문 ID (단건 조회용)", example = "1")
     private Long orderId; // null체크
@@ -30,14 +30,6 @@ public class OrderReq {
 
     @Schema(description = "조회 종료일시 (yyyyMMddHHmmss)", example = "20250501235959")
     private LocalDateTime toDate;
-
-//    @Schema(description = "조회 시작일시 (yyyyMMddHHmmss)", example = "20250430000000")
-//    @NotNull
-//    private String fromDateStr; // param
-//
-//    @Schema(description = "조회 종료일시 (yyyyMMddHHmmss)", example = "20240131235959")
-//    @NotBlank
-//    private String toDateStr; // param
 
     /**
      * 문자열 파라미터를 LocalDateTime으로 변환
@@ -68,12 +60,4 @@ public class OrderReq {
                 .toDate(to)
                 .build();
     }
-
-    // 상세조회만 orderId null 체크
-    public void validOrderIdForOrderDetail(Long orderId) {
-        if(Objects.isNull(this.orderId)) {
-            throw new IllegalArgumentException("주문상세조회 시, orderId는 필수입니다.");
-        }
-    }
-
 }

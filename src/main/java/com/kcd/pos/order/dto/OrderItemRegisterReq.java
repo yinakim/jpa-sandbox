@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Schema(description = "주문 항목 등록요청 DTO")
 public class OrderItemRegisterReq {
 
     @Schema(description = "주문상품ID", example = "1")

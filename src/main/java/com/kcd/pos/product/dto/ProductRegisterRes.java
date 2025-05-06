@@ -29,6 +29,7 @@ import java.util.List;
         ,"createdAtStr"
         ,"modifiedAtStr"
 })
+@Schema(description = "상품 등록정보 응답 DTO")
 public class ProductRegisterRes extends BaseDto {
 
     @Schema(name = "상품고유ID")

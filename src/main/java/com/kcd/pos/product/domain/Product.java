@@ -81,6 +81,4 @@ public class Product extends BaseEntity {
     public void safeDeleteProduct(){
         this.deleteYn = "Y";
     }
-
-    // TODO update 용 메서드 하나 만들어서 change 할지? 아님 필드별 change메서드를 사용?
 }

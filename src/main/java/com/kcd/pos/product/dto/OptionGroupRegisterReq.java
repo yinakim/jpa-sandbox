@@ -13,6 +13,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@Schema(name = "옵션그룹 등록요청 DTO")
 public class OptionGroupRegisterReq {
     @Schema(name = "옵션 그룹명", example = "사이즈", maxLength = 20)
     @NotBlank(message = "옵션 그룹명은 필수입니다.")
