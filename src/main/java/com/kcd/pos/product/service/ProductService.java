@@ -14,9 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -211,12 +209,59 @@ public class ProductService {
                 DataStatus.DELETE_N
         );
 
+        // productId 목록을 in 검색하여 매핑
+        List<Long> productIds = products.stream()
+                .map(Product::getProductId)
+                .collect(Collectors.toList());
+
+        // 상품-옵션그룹 매핑조회, 상품ID에 해당되는 옵션그룹 목록 그룹핑
+        List<ProductOptionGroup> pogsInProductIds = productOptionGroupRepository.findByProduct_ProductIdInAndDeleteYn(productIds, DataStatus.DELETE_N);
+        Map<Long, List<ProductOptionGroup>> groupedByProductId = pogsInProductIds.stream()
+                .collect(Collectors.groupingBy(pog -> pog.getProduct().getProductId()));
+
         return products.stream()
                 .map(product -> {
-                    List<OptionGroupRes> optionGroups = getOptionGroupsByProductId(product.getProductId());
+                    // 상품 ID에 해당되는 옵션그룹 목록
+                    List<ProductOptionGroup> pogs = groupedByProductId.getOrDefault(product.getProductId(), Collections.emptyList());
+
+                    // 상품 별 옵션그룹 목록 세팅
+                    List<OptionGroupRes> optionGroups = buildOptionGroupResList(pogs);
                     return productResMapperWithOptions(product, optionGroups);
-                })
-                .collect(Collectors.toList());
+                }).collect(Collectors.toList());
+
+        // ver 1 : 상품목록-옵션그룹-옵션 조회 시, N+1 쿼리 발생, todo. 상품 별 옵션그룹 세팅 로직 변경
+//        return products.stream()
+//                .map(product -> {
+//                    List<OptionGroupRes> optionGroups = getOptionGroupsByProductId(product.getProductId());
+//                    return productResMapperWithOptions(product, optionGroups);
+//                })
+//                .collect(Collectors.toList());
+    }
+
+    /**
+     * 상품 별 옵션그룹, 옵션목록 세팅
+     * 상품에 연결된 옵션그룹 + 옵션 조회 (DELETE_N 기준)
+     */
+    private List<OptionGroupRes> buildOptionGroupResList(List<ProductOptionGroup> pogs) {
+        return pogs.stream()
+                .map(og -> {
+                    OptionGroup optionGroup = og.getOptionGroup();
+                    List<OptionRes> options = optionGroup.getOptions()
+                            .stream()
+                            .filter(opt -> DataStatus.DELETE_N.equals(opt.getDeleteYn())) // 삭제되지 않은 옵션만
+                            .map(opt -> OptionRes.builder()
+                                    .optionId(opt.getOptionId())
+                                    .optionNm(opt.getOptionNm())
+                                    .extraPrice(opt.getExtraPrice())
+                                    .build())
+                            .collect(Collectors.toList());
+
+                    return OptionGroupRes.builder()
+                            .options(options)
+                            .optionGrpId(optionGroup.getOptionGrpId())
+                            .optionGrpNm(optionGroup.getOptionGrpNm())
+                            .build();
+                }).collect(Collectors.toList());
     }
 
     /**
