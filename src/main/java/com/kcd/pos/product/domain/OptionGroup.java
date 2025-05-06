@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "OPTION_GROUP")
@@ -51,8 +52,8 @@ public class OptionGroup extends BaseEntity { // Product -> OptionGrp(1:N) -> Op
         super(createdBy, createdAt, modifiedBy, modifiedAt);
         this.optionGrpId = optionGrpId;
         this.optionGrpNm = optionGrpNm;
-        this.minSelectCnt = minSelectCnt;
-        this.maxSelectCnt = maxSelectCnt;
+        this.minSelectCnt = Objects.isNull(minSelectCnt) ? 1 : minSelectCnt;
+        this.maxSelectCnt = Objects.isNull(maxSelectCnt) ? 1 : maxSelectCnt;
         this.activeYn = activeYn;
         this.requireYn = requireYn;
         this.deleteYn = deleteYn;
