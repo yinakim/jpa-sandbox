@@ -229,13 +229,6 @@ public class ProductService {
                     return productResMapperWithOptions(product, optionGroups);
                 }).collect(Collectors.toList());
 
-        // ver 1 : 상품목록-옵션그룹-옵션 조회 시, N+1 쿼리 발생, todo. 상품 별 옵션그룹 세팅 로직 변경
-//        return products.stream()
-//                .map(product -> {
-//                    List<OptionGroupRes> optionGroups = getOptionGroupsByProductId(product.getProductId());
-//                    return productResMapperWithOptions(product, optionGroups);
-//                })
-//                .collect(Collectors.toList());
     }
 
     /**
