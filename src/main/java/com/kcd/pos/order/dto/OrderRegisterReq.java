@@ -1,7 +1,10 @@
 package com.kcd.pos.order.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.kcd.pos.common.constants.DiscountType;
+import com.kcd.pos.order.domain.Discount;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -46,6 +49,17 @@ public class OrderRegisterReq { // 금액관련 필드는 final
         this.discountPrice = discountPrice;
         this.totalPrice = totalPrice;
         this.discount = discount;
-        this.orderItems = Objects.nonNull(orderItems) ? orderItems : Collections.emptyList();
+        this.orderItems = Objects.nonNull(orderItems) ? Collections.unmodifiableList(orderItems) : Collections.emptyList();
+    }
+
+    // 할인정보 null 체크, 변환
+    public Discount toDiscount() {
+        if (Objects.nonNull(this.discount)) {
+            return Discount.builder()
+                    .discountType(DiscountType.valueOf(this.discount.getDiscountType()))
+                    .discountValue(this.discount.getDiscountValue())
+                    .build();
+        }
+        return Discount.empty();
     }
 }

@@ -56,7 +56,7 @@ public class OrderMaster extends BaseEntity {
         this.originPrice = originPrice;
         this.totalPrice = totalPrice;
         this.discountPrice = discountPrice;
-        this.discount = Objects.isNull(discount) ? new Discount() : discount;
+        this.discount = Objects.isNull(discount) ? Discount.empty() : discount;
         this.deleteYn = deleteYn;
     }
 
