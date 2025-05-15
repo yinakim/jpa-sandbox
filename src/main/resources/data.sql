@@ -49,9 +49,9 @@ VALUES
 -- 옵션 항목
 INSERT INTO OPTION (OPTION_GROUP_ID, ACTIVE_YN, DELETE_YN, OPTION_NM, EXTRA_PRICE, CREATED_BY, CREATED_AT, MODIFIED_BY, MODIFIED_AT)
 VALUES
-    (1, 'Y', 'Y', 'Tall', 0, 'init_data', CURRENT_TIMESTAMP, 'init_data', CURRENT_TIMESTAMP),
-    (1, 'Y', 'Y', 'Grande', 500, 'init_data', CURRENT_TIMESTAMP, 'init_data', CURRENT_TIMESTAMP),
-    (1, 'Y', 'Y', 'Venti', 1000, 'init_data', CURRENT_TIMESTAMP, 'init_data', CURRENT_TIMESTAMP);
+    (1, 'Y', 'N', 'Tall', 0, 'init_data', CURRENT_TIMESTAMP, 'init_data', CURRENT_TIMESTAMP),
+    (1, 'Y', 'N', 'Grande', 500, 'init_data', CURRENT_TIMESTAMP, 'init_data', CURRENT_TIMESTAMP),
+    (1, 'Y', 'N', 'Venti', 1000, 'init_data', CURRENT_TIMESTAMP, 'init_data', CURRENT_TIMESTAMP);
 
 -- 매핑: 아메리카노 ↔ 사이즈 그룹
 -- P00001 - 아메리카노 (product_id = 1, option_group_id = 1)

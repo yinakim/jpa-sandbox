@@ -1,48 +1,34 @@
 # POS Applicatioan 
 
-## 1. 주제 및 요구사항(Introduction)
-[주제]
-- POS 디바이스와 연동하기 위한 백엔드 설계, API 개발
-- 상품 및 주문 생성 관리를 주 목적으로 하며, 결제 관련 부분은 제외     
-
-[요구사항 반영]
-- Spring (Spring이나 JDK의 제약사항은 없지만, 가급적 유지보수되고 있는 버전을 사용) 
-  - Spring Boot 3.4 
-  - Java 17 사용 
-- RDB 연동 및 설계 (테이블 스키마도 함께 제출) 
-  - 🔖 테이블 생성 DDL : [schema.sql](src/main/resources/schema.sql)
-  - 🔖 테스트데이터 세팅 DML : [data.sql](src/main/resources/data.sql)
-
-## 2. 기술 스택 (Tech Stack)
+## 1. 기술 스택 (Tech Stack)
 * Language: Java 17
 * Framework: Spring Boot 3.4
 * Database: H2
 * ORM: Spring Data JPA + Hibernate
 * Build Tool: Gradle
  
-## 3. 테이블 설계 & 고려사항
+## 2. 테이블 설계 & 고려사항
 ![erd.png](erd.png)
-- **CATEGORY**: 상품 카테고리 정보를 저장합니다.
-- **PRODUCT**: 상품의 기본 정보를 저장합니다. (`product_cd`는 고유한 상품 코드를 나타냅니다.)
-- **PRODUCT_CD_SEQ**: 상품 고유 코드 시퀀스 (`product_cd`) 생성을 위한 시퀀스 값을 관리합니다. 시퀀스 자동 증가가 아닌 수동 관리 및 락을 통해 롤백 시에도 ID가 건너뛰는 현상을 방지했습니다.
-- **OPTION_GROUP**: 상품에 대한 옵션 그룹 (예: 사이즈, 온도) 정보를 저장합니다.
-- **OPTION**: 각 옵션 그룹에 속하는 개별 옵션 항목 (예: Tall, Grande, HOT, ICED) 정보를 저장합니다.
-- **PRODUCT_OPTION_GROUP**: 상품과 옵션 그룹 간의 다대다 관계를 매핑하는 테이블입니다.
-- **ORDER_MASTER**: 개별 주문의 마스터 정보를 저장합니다. 총 금액, 할인 정보 등이 포함됩니다.
-- **ORDER_ITEM**: 주문에 포함된 각 상품 항목 정보를 저장합니다. 주문 당시의 상품 정보(이름, 단가, 수량)가 저장됩니다.
-- **ORDER_ITEM_OPTION**: 주문 항목에 대해 선택된 옵션 정보를 저장합니다.   
+- **CATEGORY**: 상품 카테고리 정보를 저장
+- **PRODUCT**: 상품의 기본 정보를 저장 (`product_cd`는 고유한 상품 코드를 나타냄)
+- **PRODUCT_CD_SEQ**: 상품 고유 코드 시퀀스 (`product_cd`) 생성을 위한 시퀀스 값을 관리 시퀀스 자동 증가가 아닌 수동 관리 및 락을 통해 롤백 시에도 ID가 건너뛰는 현상을 방지했음
+- **OPTION_GROUP**: 상품에 대한 옵션 그룹 (예: 사이즈, 온도) 정보를 저장
+- **OPTION**: 각 옵션 그룹에 속하는 개별 옵션 항목 (예: Tall, Grande, HOT, ICED) 정보를 저장
+- **PRODUCT_OPTION_GROUP**: 상품과 옵션 그룹 간의 다대다 관계를 매핑하는 테이블
+- **ORDER_MASTER**: 개별 주문의 마스터 정보를 저장 총 금액, 할인 정보 등이 포함
+- **ORDER_ITEM**: 주문에 포함된 각 상품 항목 정보를 저장 주문 당시의 상품 정보(이름, 단가, 수량)가 저장
+- **ORDER_ITEM_OPTION**: 주문 항목에 대해 선택된 옵션 정보를 저장   
+
+💡고려사항
+- Safe Delete (논리적 삭제) : 데이터 삭제 시 실제 데이터를 제거하는 대신 delete_yn 필드 값을 'Y'로 변경하여 논리적으로 삭제 처리하도록 하였음
+- JpaAuditing : Spring Data JPA Auditing 기능을 활용하여 데이터 생성자/수정자(createdBy/modifiedBy), 생성일시/수정일시(createdAt/modifiedAt)를 자동으로 기록하도록 하였음
 
 
-  💡고려사항
-- Safe Delete (논리적 삭제) : 데이터 삭제 시 실제 데이터를 제거하는 대신 delete_yn 필드 값을 'Y'로 변경하여 논리적으로 삭제 처리하도록 하였습니다.
-- JpaAuditing : Spring Data JPA Auditing 기능을 활용하여 데이터 생성자/수정자(createdBy/modifiedBy), 생성일시/수정일시(createdAt/modifiedAt)를 자동으로 기록하도록 하였습니다.
-
-
-## 4. API Endpoints
-* 주요 API 엔드포인트는 다음과 같습니다.     
+## 3. API Endpoints
+* 주요 API 엔드포인트는 다음과 같음     
 * 🔖 Postman 컬렉션 :  [상품&주문관리 API.postman_collection.json](src/main/resources/api_collection_product_order.json)
 
-### 4.1. 카테고리 (Category) 관리
+### 3.1. 카테고리 (Category) 관리
 
 | HTTP Method | Endpoint                     | 설명                     |
 | :---------- | :--------------------------- |:-----------------------|
@@ -52,7 +38,7 @@
 | `PUT`       | `/pos/category/v1/categories/{categoryId}` | 카테고리 수정               |
 | `DELETE`    | `/pos/category/v1/categories/{categoryId}` | 카테고리 삭제 (Safe Delete)  |
 
-### 4.2. 상품 (Product) 관리
+### 3.2. 상품 (Product) 관리
 
 | HTTP Method | Endpoint                     | 설명                       |
 | :---------- | :--------------------------- |:-------------------------|
@@ -63,7 +49,7 @@
 | `DELETE`    | `/pos/product/v1/products/{productCd}` | 상품 삭제 (Safe Delete)      |
 
 
-### 4.3. 주문 (Order) 관리
+### 3.3. 주문 (Order) 관리
 
 | HTTP Method | Endpoint                     | 설명                       |
 | :---------- | :--------------------------- |:-------------------------|

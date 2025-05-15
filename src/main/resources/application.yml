@@ -43,6 +43,6 @@ springdoc:
 logging:
   level:
     root: INFO
-    com.kcd.pos: INFO
+    com.pos: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
