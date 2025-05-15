@@ -1,4 +1,5 @@
-# POS Applicatioan 
+# POS Applicatioan - JPA sandbox
+pos application용 엔티티, api 설계
 
 ## 1. 기술 스택 (Tech Stack)
 * Language: Java 17
