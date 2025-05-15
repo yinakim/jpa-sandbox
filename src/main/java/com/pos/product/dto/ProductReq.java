@@ -43,4 +43,25 @@ public class ProductReq {
 
     @Schema(name = "삭제여부", example = "N")
     private String deleteYn;
+
+    @Schema(name = "expand", example = "false", description = "옵션 포함 응답 여부 (true : 옵션그룹/옵션 포함)")
+    private Boolean expand;
+
+    @Builder
+    public ProductReq(
+            Long productId, Long categoryId, String productCd, String productNm, int minPrice, int maxPrice, BgColor bgColor, String taxYn, String storeId,
+            Category category, String deleteYn, Boolean expand) {
+        this.productId = productId;
+        this.categoryId = categoryId;
+        this.productCd = productCd;
+        this.productNm = productNm;
+        this.minPrice = minPrice;
+        this.maxPrice = maxPrice;
+        this.bgColor = bgColor;
+        this.taxYn = taxYn;
+        this.storeId = storeId;
+        this.category = category;
+        this.deleteYn = deleteYn;
+        this.expand = Boolean.TRUE.equals(expand); // 기본값 false -> 옵션그룹 없는 상품목록만 조회 (POS 에서 상품목록만 빠르게 조회)
+    }
 }

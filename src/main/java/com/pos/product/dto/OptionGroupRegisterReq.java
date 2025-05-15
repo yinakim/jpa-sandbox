@@ -1,6 +1,5 @@
 package com.pos.product.dto;
 
-import com.pos.product.domain.Option;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;

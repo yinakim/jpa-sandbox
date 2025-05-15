@@ -10,6 +10,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @JsonPropertyOrder({
@@ -52,7 +53,7 @@ public class ProductRes extends BaseDto {
     private CategoryRes category;
 
     @Schema(name = "상품 옵션그룹 목록")
-    private List<OptionGroupRes> optionGroupResList = Collections.emptyList();
+    private List<OptionGroupRes> optionGroupResList;
 
     @Builder
     public ProductRes(
@@ -66,6 +67,6 @@ public class ProductRes extends BaseDto {
         this.taxYn = taxYn;
         this.storeId = storeId;
         this.category = category;
-        this.optionGroupResList = optionGroupResList;
+        this.optionGroupResList = Objects.isNull(optionGroupResList) ? Collections.emptyList() : optionGroupResList;
     }
 }

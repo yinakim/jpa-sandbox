@@ -7,7 +7,7 @@ pos application용 엔티티, api 설계
 * Database: H2
 * ORM: Spring Data JPA + Hibernate
 * Build Tool: Gradle
- 
+
 ## 2. 테이블 설계 & 고려사항
 ![erd.png](erd.png)
 - **CATEGORY**: 상품 카테고리 정보를 저장
@@ -18,7 +18,7 @@ pos application용 엔티티, api 설계
 - **PRODUCT_OPTION_GROUP**: 상품과 옵션 그룹 간의 다대다 관계를 매핑하는 테이블
 - **ORDER_MASTER**: 개별 주문의 마스터 정보를 저장 총 금액, 할인 정보 등이 포함
 - **ORDER_ITEM**: 주문에 포함된 각 상품 항목 정보를 저장 주문 당시의 상품 정보(이름, 단가, 수량)가 저장
-- **ORDER_ITEM_OPTION**: 주문 항목에 대해 선택된 옵션 정보를 저장   
+- **ORDER_ITEM_OPTION**: 주문 항목에 대해 선택된 옵션 정보를 저장
 
 💡고려사항
 - Safe Delete (논리적 삭제) : 데이터 삭제 시 실제 데이터를 제거하는 대신 delete_yn 필드 값을 'Y'로 변경하여 논리적으로 삭제 처리하도록 하였음
@@ -26,7 +26,7 @@ pos application용 엔티티, api 설계
 
 
 ## 3. API Endpoints
-* 주요 API 엔드포인트는 다음과 같음     
+* 주요 API 엔드포인트는 다음과 같음
 * 🔖 Postman 컬렉션 :  [상품&주문관리 API.postman_collection.json](src/main/resources/api_collection_product_order.json)
 
 ### 3.1. 카테고리 (Category) 관리

@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,8 +75,6 @@ public class CategoryService {
      */
     public List<CategoryRes> getCategoryByCategoryNm(String categoryNm) {
         List<Category> results = categoryRepository.findCategoriesByCategoryNmContainsIgnoreCase(categoryNm);
-
-        if(results.isEmpty()) return Collections.emptyList();
         return results.stream()
                 .map(category -> categoryResMapper(category))
                 .collect(Collectors.toList());

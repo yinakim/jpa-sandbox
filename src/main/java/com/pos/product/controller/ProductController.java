@@ -44,7 +44,9 @@ public class ProductController {
             @RequestParam(required = false) BgColor bgColor,
             @RequestParam(required = false) String taxYn,
             @RequestParam(required = false) String storeId,
-            @RequestParam(required = false) String deleteYn
+            @RequestParam(required = false) String deleteYn,
+            @RequestParam(required = false) Boolean expand
+
     ) {
         boolean allNull = Stream.of(productCd, productNm, minPrice, maxPrice, bgColor, taxYn, storeId, categoryId, deleteYn)
                 .allMatch(Objects::isNull);
@@ -62,6 +64,7 @@ public class ProductController {
                 .taxYn(taxYn)
                 .storeId(storeId)
                 .deleteYn(deleteYn)
+                .expand(expand)
                 .build();
 
         List<ProductRes> results = service.getProducts(condition);
