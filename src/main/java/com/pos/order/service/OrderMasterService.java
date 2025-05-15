@@ -47,20 +47,9 @@ public class OrderMasterService {
         int itemPriceSum = 0;   // 상품가격 합산
         int extraPriceSum = 0;  // 옵션 추가금 합산
 
-        // 1. 할인 체크, 변환
-        Discount discount = null;
-        if (Objects.nonNull(request.getDiscount())) {
-            discount = Discount.builder()
-                    .discountType(DiscountType.valueOf(request.getDiscount().getDiscountType()))
-                    .discountValue(request.getDiscount().getDiscountValue())
-                    .build();
-        } else {
-            discount = new Discount();
-        }
-
         // 2. Order 생성
         OrderMaster orderMaster = OrderMaster.builder()
-                .discount(discount)
+                .discount(request.toDiscount()) // 할인 체크, 변환
                 .deleteYn(DataStatus.DELETE_N)
                 .build();
 
@@ -140,8 +129,8 @@ public class OrderMasterService {
 
         return OrderRegisterRes.builder()
                 .orderId(savedOrder.getOrderId())
-                .storeId(TestConstants.SAMPLE_STORE_ID)
-                .posId(TestConstants.SAMPLE_POS_ID)
+                .storeId(TestConstants.SAMPLE_STORE_ID) // 받아온 상점 ID사용
+                .posId(TestConstants.SAMPLE_POS_ID) // 받아온 POS ID 사용
                 .originPrice(savedOrder.getOriginPrice())
                 .discountPrice(savedOrder.getDiscountPrice())
                 .totalPrice(savedOrder.getTotalPrice())

@@ -4,10 +4,10 @@ import com.pos.common.constants.DiscountType;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
+@Embeddable
 @Getter
 public class Discount {
 
@@ -25,22 +25,22 @@ public class Discount {
     private int discountValue; // 받아오는 값, this.discountType 에 따라 계산할 값
 
     // 할인 null 방지
-    public Discount() {
+    protected Discount() {
         this.discountType = DiscountType.EMPTY;
+        this.discountValue = 0;
         this.discountPercent = 0;
         this.discountAmount = 0;
-        this.discountValue = 0;
+    }
+
+    public static Discount empty(){
+        return new Discount();
     }
 
     @Builder
     public Discount(DiscountType discountType, int discountValue, int discountPercent, int discountAmount) {
-        if(Objects.isNull(discountType)) {
-            this.discountType = DiscountType.EMPTY;
-        } else {
-            this.discountType = discountType;
-        }
+        // 할인방법 값 null체크
+        this.discountType = Objects.requireNonNullElse(discountType, DiscountType.EMPTY);
         this.discountValue = discountValue;
-        // 할인계산은 금액이 있는 order에서 해야 하는데?
         this.discountPercent = discountPercent;
         this.discountAmount = discountAmount;
     }
